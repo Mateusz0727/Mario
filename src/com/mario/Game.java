@@ -1,6 +1,13 @@
 package com.mario;
 
+import com.mario.entity.Player;
+import com.mario.gfx.Sprite;
+import com.mario.gfx.SpriteSheet;
+import com.mario.input.KeyInput;
+import com.mario.tile.Wall;
+
 import java.awt.*;
+import java.awt.event.KeyAdapter;
 import java.awt.image.BufferStrategy;
 import javax.swing.JFrame;
 
@@ -12,14 +19,18 @@ import javax.swing.JFrame;
 public class Game extends Canvas implements Runnable {
 
     // --- Constants defining the game resolution and scaling ---
-    public static final int WIDTH = 800;
-    public static final int HEIGHT = WIDTH / 12;
+    public static final int WIDTH = 270;
+    public static final int HEIGHT = WIDTH/14*10;
     public static final int SCALE = 4;
 
     // --- Thread control variables ---
     private Thread gameThread;
     private boolean running = false;
 
+    public static Handler handler;
+    public static SpriteSheet sheet;
+    public static Sprite grass;
+    public static Sprite player;
     /**
      * Constructs a new {@code Game} instance.
      * Sets up the preferred, maximum, and minimum window dimensions
@@ -30,6 +41,20 @@ public class Game extends Canvas implements Runnable {
         setPreferredSize(screenSize);
         setMaximumSize(screenSize);
         setMinimumSize(screenSize);
+    }
+
+    private void init() {
+        handler = new Handler();
+        sheet = new SpriteSheet("/sheet.png");
+
+
+        addKeyListener(new KeyInput());
+
+        grass= new Sprite(sheet,9,4);
+        player= new Sprite(sheet,7,7);
+
+        handler.addEntity(new Player(300,200,64,64,true,Id.player,handler));
+      //  handler.addTile(new Wall(200,200,64,64,true,Id.wall,handler));
     }
 
     /**
@@ -61,6 +86,7 @@ public class Game extends Canvas implements Runnable {
      * This method will be used for player movement, physics, collisions, etc.
      */
     public void tick() {
+        handler.tick();
         // TODO: Add game logic updates here
     }
 
@@ -78,9 +104,10 @@ public class Game extends Canvas implements Runnable {
         Graphics g = bs.getDrawGraphics();
 
         // --- Example background rendering ---
-        g.setColor(Color.BLACK);
-        g.fillRect(0, 0, WIDTH, HEIGHT);
+        g.setColor(Color.CYAN);
+        g.fillRect(0, 0, getWidth(), getHeight());
 
+        handler.render(g);
         g.dispose();
         bs.show();
     }
@@ -92,6 +119,8 @@ public class Game extends Canvas implements Runnable {
      */
     @Override
     public void run() {
+        init();
+        requestFocus();
         long lastTime = System.nanoTime();
         long timer = System.currentTimeMillis();
         double delta = 0;
