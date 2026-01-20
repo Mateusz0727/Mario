@@ -33,7 +33,7 @@ public class KeyInput implements KeyListener {
                     case KeyEvent.VK_UP:
                         if(!entity.jumping) {
                             entity.jumping = true;
-                            entity.gravity = 10.0;
+                            entity.gravity = 15.0;
                         }
                         break;
                         case KeyEvent.VK_DOWN:

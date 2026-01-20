@@ -22,121 +22,139 @@ public class Player extends Entity {
 
     @Override
     public void render(Graphics g) {
-       g.drawImage(Game.player.getBufferImage(),x,y,width,height,null );
+        g.drawImage(Game.player.getBufferImage(), x, y, width, height, null);
     }
 
     @Override
     public void tick() {
-        x+=velX;
-        y+=velY;
+        // --- 1. RUCH I KOLIZJE POZIOME (X) ---
+        x += velX;
 
-        if(goingDownPipe){
-            pixelsTravelled+=velY;
-        }
+        // Zabezpieczenie krawędzi mapy
+        if (x <= 0) x = 0;
+        if (x + width >= 1080) x = 1080 - width;
 
-        if(x<=0)x=0;
-        if(y<=0)y=0;
-        if(x+width>=1080) x=1080-width;
-        if(y+height>=771) y=771-height;
-
-        for(Tile t:handler.tile){
+        for (Tile t : handler.tile) {
             if (!t.solid && !goingDownPipe) continue;
-            if (t.getId()==Id.wall)
-            {
-                if(getBoundsTop().intersects(t.getBounds()))
-                {
-                    setVelY(0);
-                    if(jumping) {
-                        jumping = false;
-                        gravity=0.0;
-                        falling=true;
-                    }
-                    if(t.getId()==Id.powerUp){
-                        if(getBoundsTop().intersects(t.getBounds())) t.activated = true;
-                    }
-                    y=t.getY()+t.height;
-                }
-                if(getBoundsBottom().intersects(t.getBounds()))
-                {
-                    setVelY(0);
-                    if(falling) falling=false;
-                }
-                else {
-                    if(!falling&&!jumping){ falling=true;
-                    gravity=0.0;}
-                }
-                if(getBoundsLeft().intersects(t.getBounds())) {
+
+            if (t.getId() == Id.wall || t.getId() == Id.powerUp || t.getId() == Id.pipe) { // Dodaj też inne solidne bloki
+                if (getBoundsLeft().intersects(t.getBounds())) {
                     setVelX(0);
                     x = t.getX() + t.width;
                 }
-                if(getBoundsRight().intersects(t.getBounds())) {
+                if (getBoundsRight().intersects(t.getBounds())) {
                     setVelX(0);
                     x = t.getX() - width;
                 }
             }
-            if(getBounds().intersects(t.getBounds()) && t.getId()==Id.coin) {
+        }
+
+        // --- 2. RUCH I KOLIZJE PIONOWE (Y) ---
+        y += velY;
+
+        // Zabezpieczenie krawędzi mapy
+        if (y <= 0) y = 0;
+        if (y + height >= 771) y = 771 - height;
+
+        if (goingDownPipe) {
+            pixelsTravelled += velY;
+        }
+
+        for (Tile t : handler.tile) {
+            if (!t.solid && !goingDownPipe) continue;
+
+            if (t.getId() == Id.wall || t.getId() == Id.powerUp || t.getId() == Id.pipe) {
+                if (getBoundsTop().intersects(t.getBounds())) {
+                    setVelY(0);
+                    if (jumping) {
+                        jumping = false;
+                        gravity = 0.0;
+                        falling = true;
+                    }
+                    // Logika uderzenia głową w blok z power-upem
+                    if (t.getId() == Id.powerUp) {
+                        if (getBoundsTop().intersects(t.getBounds())) t.activated = true;
+                    }
+                    y = t.getY() + t.height;
+                }
+
+                if (getBoundsBottom().intersects(t.getBounds())) {
+                    setVelY(0);
+                    if (falling) falling = false;
+                    // Ważne: przy lądowaniu ustawiamy idealną pozycję na górze bloku
+                    y = t.getY() - height;
+                } else {
+                    if (!falling && !jumping) {
+                        falling = true;
+                        gravity = 0.0;
+                    }
+                }
+            }
+
+            // Logika monet (pozostaje bez zmian, bo monety nie są solidne)
+            if (getBounds().intersects(t.getBounds()) && t.getId() == Id.coin) {
                 Game.coins++;
                 t.removed = true;
             }
         }
 
-        for(int i=0;i<handler.entity.size();i++){
-            Entity e=handler.entity.get(i);
+        // --- 3. INTERAKCJE Z ENTYTIES (Grzyby, Goomby) ---
+        // (Ten fragment kodu pozostaje taki sam jak miałeś, kopiuję go dla kompletności)
+        for (int i = 0; i < handler.entity.size(); i++) {
+            Entity e = handler.entity.get(i);
 
-            if(e.getId()==Id.mushroom){
-                if(getBounds().intersects(e.getBounds())){
+            if (e.getId() == Id.mushroom) {
+                if (getBounds().intersects(e.getBounds())) {
                     int tpX = getX();
                     int tpY = getY();
-                    width*=2;
-                    height*=2;
-                    setX(tpX-width);
-                    setY(tpY-height);
-                    if(state == PlayerState.SMALL) state =  PlayerState.BIG;
+                    width *= 2;
+                    height *= 2;
+                    setX(tpX - width);
+                    setY(tpY - height);
+                    if (state == PlayerState.SMALL) state = PlayerState.BIG;
                     e.die();
                 }
-            } else if(e.getId()==Id.goomba){
-                if(getBoundsBottom().intersects(e.getBoundsTop())){
+            } else if (e.getId() == Id.goomba) {
+                if (getBoundsBottom().intersects(e.getBoundsTop())) {
                     e.die();
-                }
-                else if(getBounds().intersects(e.getBounds())){
-                    if(state == PlayerState.BIG) {
+                } else if (getBounds().intersects(e.getBounds())) {
+                    if (state == PlayerState.BIG) {
                         state = PlayerState.SMALL;
-                        width/=2;
-                        height/=2;
-                        x+=width;
-                        y+=height;
-                    }
-                    else if(state == PlayerState.SMALL) die();
+                        width /= 2;
+                        height /= 2;
+                        x += width;
+                        y += height;
+                    } else if (state == PlayerState.SMALL) die();
                 }
             }
         }
 
-        if(jumping && !goingDownPipe)
-        {
-            gravity-=0.5;
-            setVelY((int)-gravity);
-            if(gravity<=0.0)
-            {
-                jumping=false;
-                falling=true;
+        // --- 4. FIZYKA SKOKU I GRAWITACJA ---
+        if (jumping && !goingDownPipe) {
+            gravity -= 1;
+            setVelY((int) -gravity);
+            if (gravity <= 0.0) {
+                jumping = false;
+                falling = true;
             }
         }
-        if(falling && !goingDownPipe)
-        {
-            gravity+=0.5;
-            setVelY((int)gravity);
+        if (falling && !goingDownPipe) {
+            gravity += 0.7;
+            setVelY( gravity);
         }
-        if(goingDownPipe){
-            for(int i=0;i<Game.handler.tile.size();i++){
+
+        // --- 5. LOGIKA RUR ---
+        if (goingDownPipe) {
+            for (int i = 0; i < Game.handler.tile.size(); i++) {
                 Tile t = Game.handler.tile.get(i);
-                if(t.getId()==Id.pipe){
-                    if(getBoundsTop().intersects(t.getBounds())) {
+                if (t.getId() == Id.pipe) {
+                    if (getBounds().intersects(t.getBounds())) {
                         switch (t.facing) {
-                            case 0:
+                            case 0: // Góra
                                 setVelY(-5);
                                 setVelX(0);
                                 break;
-                            case 2:
+                            case 2: // Dół
                                 setVelY(5);
                                 setVelX(0);
                                 break;

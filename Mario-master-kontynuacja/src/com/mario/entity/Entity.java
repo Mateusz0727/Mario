@@ -15,7 +15,7 @@ public abstract class Entity {
     public boolean jumping=false;
     public boolean falling = true;
     public boolean removed = false;
-    public int velX,velY;
+    public double velX,velY;
     public double gravity =0.0;
     public Id id;
     public boolean goingDownPipe = false;
@@ -58,11 +58,11 @@ public abstract class Entity {
         return solid;
     }
 
-    public void setVelX(int velX) {
+    public void setVelX(double velX) {
         this.velX = velX;
     }
 
-    public void setVelY(int velY) {
+    public void setVelY(double velY) {
         this.velY = velY;
     }
 
