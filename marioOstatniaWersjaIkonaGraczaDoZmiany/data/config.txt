@@ -1,3 +1,0 @@
-coinsToAdvance=10
-goombasToAdvance=1
-startingLives=3

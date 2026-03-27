@@ -1,0 +1,5 @@
+Report reason: Game over
+Level: /level.png
+Coins: 10
+Goombas defeated: 0
+Lives: 0
