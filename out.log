@@ -1,0 +1,19 @@
+
+> Task :compileJava FAILED
+D:\do szkoły\STUDIA\JAVA_MARIO\Mario\src\main\java\com\mario\Game.java:133: error: state has private access in Player
+                    int scaleState = localPlayer.state == com.mario.states.PlayerState.BIG ? 1 : 0;
+                                                ^
+1 error
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':compileJava'.
+> Compilation failed; see the compiler error output for details.
+
+* Try:
+> Run with --info option to get more log output.
+> Run with --scan to get full insights.
+
+BUILD FAILED in 1s
+1 actionable task: 1 executed
