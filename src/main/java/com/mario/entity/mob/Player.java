@@ -145,9 +145,13 @@ public class Player extends Entity {
                         x += width;
                         y += height;
                     } else if (state == PlayerState.SMALL) {
-                        if (Game.gameClient != null) Game.gameClient.disconnect();
-                        die();
-                        Game.state = Game.GameState.MENU;
+                        die(); // Gracz zostaje usunięty z ekranu w obu trybach
+                        if (Game.gameClient != null && Game.gameClient.connected) {
+                            // Jesteśmy w trybie Online, zostajemy jako obserwator!
+                        } else {
+                            // Jesteśmy w trybie Single Player, koniec gry
+                            Game.state = Game.GameState.MENU;
+                        }
                     }
                 }
             }

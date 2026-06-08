@@ -17,7 +17,8 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 /**
- * The {@code Game} class represents the main game loop for the Super Mario project.
+ * The {@code Game} class represents the main game loop for the Super Mario
+ * project.
  * It extends {@link Application} (JavaFX) and uses {@link AnimationTimer}
  * for the game loop running at ~60 FPS.
  */
@@ -36,16 +37,17 @@ public class Game extends Application {
     public enum GameState {
         MENU, LOBBY, PLAYING
     }
+
     public static GameState state = GameState.MENU;
     public static int menuIndex = 0; // 0 = Single Player, 1 = Online Mode
 
     // --- System Sieciowy ---
     public static com.mario.net.GameClient gameClient;
     public static String lobbyCode = "Oczekiwanie...";
-    
+
     public static void initOnlineClient(boolean create, String code) {
         state = GameState.LOBBY;
-        gameClient = new com.mario.net.GameClient("127.0.0.1", 1234);
+        gameClient = new com.mario.net.GameClient("10.142.108.100", 1234);
         gameClient.start();
         if (create) {
             gameClient.sendPacket(com.mario.net.Packet.createRoom());
@@ -56,7 +58,7 @@ public class Game extends Application {
 
     public static int coins = 0;
     public static int goombasDefeated = 0;
-    
+
     // Interpolacja duchów
     private java.util.Map<String, double[]> ghostPositions = new java.util.HashMap<>();
     private int frameCounter = 0;
@@ -85,9 +87,10 @@ public class Game extends Application {
         coins = 0;
         goombasDefeated = 0;
 
-        javafx.scene.image.Image levelImage = new javafx.scene.image.Image(Game.class.getResourceAsStream("/level.png"));
+        javafx.scene.image.Image levelImage = new javafx.scene.image.Image(
+                Game.class.getResourceAsStream("/level.png"));
         handler.createLevel(levelImage);
-        
+
         com.mario.entity.Entity p = handler.findPlayer();
         if (p != null) {
             cam.tick(p);
@@ -111,23 +114,24 @@ public class Game extends Application {
         powerUp = new Sprite(sheet, 4, 4); // placeholder coordinates
         usedPowerUp = new Sprite(sheet, 5, 5); // placeholder coordinates
 
-        javafx.scene.image.Image levelImage = new javafx.scene.image.Image(getClass().getResourceAsStream("/level.png"));
-        
+        javafx.scene.image.Image levelImage = new javafx.scene.image.Image(
+                getClass().getResourceAsStream("/level.png"));
+
         // Update level dimensions based on the actual image size
         levelWidthPixels = (int) levelImage.getWidth() * 64;
         levelHeightPixels = (int) levelImage.getHeight() * 64;
 
         handler.createLevel(levelImage);
-        
+
         try {
             System.out.println("Łączenie z serwerem w celu pobrania statystyk...");
-            java.net.Socket s = new java.net.Socket("127.0.0.1", 1234);
+            java.net.Socket s = new java.net.Socket("10.142.108.100", 1234);
             java.io.ObjectOutputStream out = new java.io.ObjectOutputStream(s.getOutputStream());
             java.io.ObjectInputStream in = new java.io.ObjectInputStream(s.getInputStream());
-            
+
             out.writeObject(com.mario.net.Packet.loadDb("Player1"));
             out.flush();
-            
+
             Object obj = in.readObject();
             if (obj instanceof com.mario.net.Packet) {
                 com.mario.net.Packet p = (com.mario.net.Packet) obj;
@@ -152,25 +156,30 @@ public class Game extends Application {
     public void tick() {
         if (state == GameState.PLAYING) {
             handler.tick();
-            
+
             // Update camera position to follow player
             com.mario.entity.Entity p = handler.findPlayer();
             if (p != null) {
                 cam.tick(p);
-                
+
                 // System wymiany danych sieciowych (Wysłanie ułamka klatki w świat)
                 if (gameClient != null && gameClient.connected) {
                     Player localPlayer = (Player) p;
                     int scaleState = localPlayer.state == com.mario.states.PlayerState.BIG ? 1 : 0;
-                    
+
                     // Budowa paczki o sobie samym
                     com.mario.net.GameData data = new com.mario.net.GameData(
-                        "Player1", p.getX(), p.getY(), p.jumping, p.falling, scaleState, 0
-                    ); 
-                    
+                            "Player1", p.getX(), p.getY(), p.jumping, p.falling, scaleState, 0);
+
                     // Wyrzucenie fizyki przez lejek OOS TCP
                     gameClient.sendPacket(com.mario.net.Packet.update(lobbyCode, data));
                 }
+            } else if (gameClient != null && gameClient.connected && !gameClient.ghosts.isEmpty()) {
+                // Kamera podąża za duchem, jeśli nie żyjemy (Tryb obserwatora)
+                com.mario.net.GameData targetGhost = gameClient.ghosts.values().iterator().next();
+                int ghostW = targetGhost.state == 1 ? 128 : 64;
+                int ghostH = targetGhost.state == 1 ? 128 : 64;
+                cam.tick(targetGhost.x, targetGhost.y, ghostW, ghostH);
             }
         }
     }
@@ -182,23 +191,23 @@ public class Game extends Application {
         if (state == GameState.MENU) {
             gc.setFill(Color.BLACK);
             gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
-            
+
             gc.setFill(Color.WHITE);
             gc.setFont(javafx.scene.text.Font.font("Arial", javafx.scene.text.FontWeight.BOLD, 60));
             gc.fillText("SUPER MARIO", canvas.getWidth() / 2 - 200, 200);
 
             gc.setFont(javafx.scene.text.Font.font("Arial", javafx.scene.text.FontWeight.BOLD, 40));
-            
+
             gc.setFill(menuIndex == 0 ? Color.YELLOW : Color.WHITE);
             gc.fillText("Single Player", canvas.getWidth() / 2 - 120, 400);
-            
+
             gc.setFill(menuIndex == 1 ? Color.YELLOW : Color.WHITE);
             gc.fillText("Online Mode", canvas.getWidth() / 2 - 120, 500);
 
         } else if (state == GameState.LOBBY) {
             gc.setFill(Color.BLACK);
             gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
-            
+
             gc.setFill(Color.WHITE);
             gc.setFont(javafx.scene.text.Font.font("Arial", javafx.scene.text.FontWeight.BOLD, 40));
             gc.fillText("POCZEKALNIA SIECIOWA", canvas.getWidth() / 2 - 250, 200);
@@ -220,38 +229,38 @@ public class Game extends Application {
 
             // Shift rendering context by camera offset
             gc.translate(-cam.getX(), -cam.getY());
-            
+
             handler.render(gc);
-            
+
             // ===== RYSOWANIE DUCHÓW INNYCH GRACZY =====
             if (gameClient != null && gameClient.connected) {
-                gc.setGlobalAlpha(0.6); 
-                
+                gc.setGlobalAlpha(0.6);
+
                 for (com.mario.net.GameData targetGhost : gameClient.ghosts.values()) {
                     String id = targetGhost.playerId;
-                    
+
                     // Inicjalizacja lub pobranie pozycji interpolowanej
                     double[] currentPos = ghostPositions.get(id);
                     if (currentPos == null) {
-                        currentPos = new double[]{targetGhost.x, targetGhost.y};
+                        currentPos = new double[] { targetGhost.x, targetGhost.y };
                         ghostPositions.put(id, currentPos);
                     }
-                    
+
                     // LERP - Płynne "dopływanie" ducha do celu (0.1 = siła wygładzania)
                     currentPos[0] += (targetGhost.x - currentPos[0]) * 0.15;
                     currentPos[1] += (targetGhost.y - currentPos[1]) * 0.15;
 
                     int ghostW = targetGhost.state == 1 ? 128 : 64;
                     int ghostH = targetGhost.state == 1 ? 128 : 64;
-                    
+
                     // Prosta animacja chodzenia dla duchów (oparta na ruchu)
                     Image ghostImg = player.getImage(); // Fallback
                     // Tu można by dodać wybór klatki dla ducha
-                    
+
                     gc.drawImage(ghostImg, currentPos[0], currentPos[1], ghostW, ghostH);
                 }
-                
-                gc.setGlobalAlpha(1.0); 
+
+                gc.setGlobalAlpha(1.0);
             }
             // ===========================================
 
@@ -324,29 +333,32 @@ public class Game extends Application {
         try {
             // Zapis danych do bazy na Serwerze
             try {
-                java.net.Socket s = new java.net.Socket("127.0.0.1", 1234);
+                java.net.Socket s = new java.net.Socket("10.142.108.100", 1234);
                 java.io.ObjectOutputStream out = new java.io.ObjectOutputStream(s.getOutputStream());
-                
+
                 String payload = coins + ";" + goombasDefeated + ";3;Level1";
                 out.writeObject(com.mario.net.Packet.saveDb("Player1", payload));
                 out.flush();
-                
+
                 s.close();
                 System.out.println("Zapisano pomyślnie na serwerze.");
             } catch (Exception ex) {
                 System.out.println("Brak połączenia z serwerem. Zapis bazy niemożliwy.");
             }
-            
+
             // Raport lokalny pozostaje bez zmian
             com.mario.io.GameFileManager gfm = new com.mario.io.GameFileManager();
             String report = "=== RAPORT Z DZIAŁANIA PROGRAMU ===\n" +
-                            "Gracz: Player1\n" +
-                            "Zebrane monety: " + coins + "\n" +
-                            "Pokonane Goomby: " + goombasDefeated + "\n" +
-                            "Status sieci: " + ((gameClient != null && gameClient.connected) ? "Połączono" : "Brak połączenia lub gra Single Player") + "\n" +
-                            "Kod pokoju: " + lobbyCode + "\n" +
-                            "Czas zakonczenia: " + java.time.LocalDateTime.now().toString() + "\n" +
-                            "===================================\n";
+                    "Gracz: Player1\n" +
+                    "Zebrane monety: " + coins + "\n" +
+                    "Pokonane Goomby: " + goombasDefeated + "\n" +
+                    "Status sieci: "
+                    + ((gameClient != null && gameClient.connected) ? "Połączono"
+                            : "Brak połączenia lub gra Single Player")
+                    + "\n" +
+                    "Kod pokoju: " + lobbyCode + "\n" +
+                    "Czas zakonczenia: " + java.time.LocalDateTime.now().toString() + "\n" +
+                    "===================================\n";
             gfm.writeReport("reports", report);
             System.out.println("Raport zapisany pomyślnie.");
         } catch (Exception e) {
