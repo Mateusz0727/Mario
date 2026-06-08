@@ -16,7 +16,10 @@ public class Packet implements Serializable {
         ERROR,
         UPDATE,
         TILE_SYNC,
-        ENTITY_SYNC
+        ENTITY_SYNC,
+        SAVE_DB,
+        LOAD_DB,
+        LOAD_DB_RESPONSE
     }
 
     public Type type;
@@ -89,6 +92,32 @@ public class Packet implements Serializable {
         p.tx = ex; // Używamy tx/ty dla spójności i oszczędności pól
         p.ty = ey;
         p.tileRemoved = removed; // reużywamy pola
+        return p;
+    }
+
+    // Konstruktor do zapisu DB
+    public static Packet saveDb(String playerId, String dbPayload) {
+        Packet p = new Packet();
+        p.type = Type.SAVE_DB;
+        p.roomCode = playerId;
+        p.message = dbPayload;
+        return p;
+    }
+
+    // Konstruktor do odczytu DB
+    public static Packet loadDb(String playerId) {
+        Packet p = new Packet();
+        p.type = Type.LOAD_DB;
+        p.roomCode = playerId;
+        return p;
+    }
+
+    // Konstruktor odpowiedzi DB
+    public static Packet loadDbResponse(String playerId, String dbPayload) {
+        Packet p = new Packet();
+        p.type = Type.LOAD_DB_RESPONSE;
+        p.roomCode = playerId;
+        p.message = dbPayload;
         return p;
     }
 }

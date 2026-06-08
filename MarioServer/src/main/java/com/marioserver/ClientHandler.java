@@ -98,6 +98,20 @@ public class ClientHandler extends Thread {
                             }
                         }
                     }
+                    else if (packet.type == Packet.Type.SAVE_DB) {
+                        ServerDatabase.saveData(packet.roomCode, packet.message);
+                        System.out.println("Zapisano do bazy wynik gracza: " + packet.roomCode);
+                    }
+                    else if (packet.type == Packet.Type.LOAD_DB) {
+                        String payload = ServerDatabase.loadData(packet.roomCode);
+                        if (payload != null) {
+                            sendObject(Packet.loadDbResponse(packet.roomCode, payload));
+                            System.out.println("Wysłano dane z bazy do gracza: " + packet.roomCode);
+                        } else {
+                            sendObject(Packet.loadDbResponse(packet.roomCode, "0;0;3;Level1"));
+                            System.out.println("Zainicjowano nowe dane dla gracza: " + packet.roomCode);
+                        }
+                    }
                 }
             }
         } catch (java.io.EOFException e) {

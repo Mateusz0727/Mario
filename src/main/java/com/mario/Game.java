@@ -118,6 +118,32 @@ public class Game extends Application {
         levelHeightPixels = (int) levelImage.getHeight() * 64;
 
         handler.createLevel(levelImage);
+        
+        try {
+            System.out.println("Łączenie z serwerem w celu pobrania statystyk...");
+            java.net.Socket s = new java.net.Socket("127.0.0.1", 1234);
+            java.io.ObjectOutputStream out = new java.io.ObjectOutputStream(s.getOutputStream());
+            java.io.ObjectInputStream in = new java.io.ObjectInputStream(s.getInputStream());
+            
+            out.writeObject(com.mario.net.Packet.loadDb("Player1"));
+            out.flush();
+            
+            Object obj = in.readObject();
+            if (obj instanceof com.mario.net.Packet) {
+                com.mario.net.Packet p = (com.mario.net.Packet) obj;
+                if (p.type == com.mario.net.Packet.Type.LOAD_DB_RESPONSE && p.message != null) {
+                    String[] parts = p.message.split(";");
+                    if (parts.length >= 4) {
+                        coins = Integer.parseInt(parts[0]);
+                        goombasDefeated = Integer.parseInt(parts[1]);
+                        System.out.println("Wczytano statystyki z serwera dla Player1. Monety: " + coins);
+                    }
+                }
+            }
+            s.close();
+        } catch (Exception e) {
+            System.out.println("Nie udało się połączyć z serwerem bazy danych. Start od 0.");
+        }
     }
 
     /**
@@ -290,6 +316,42 @@ public class Game extends Application {
                 }
             }
         }.start();
+    }
+
+    @Override
+    public void stop() {
+        System.out.println("Zamykanie gry, zapisywanie bazy danych na serwerze i generowanie raportu...");
+        try {
+            // Zapis danych do bazy na Serwerze
+            try {
+                java.net.Socket s = new java.net.Socket("127.0.0.1", 1234);
+                java.io.ObjectOutputStream out = new java.io.ObjectOutputStream(s.getOutputStream());
+                
+                String payload = coins + ";" + goombasDefeated + ";3;Level1";
+                out.writeObject(com.mario.net.Packet.saveDb("Player1", payload));
+                out.flush();
+                
+                s.close();
+                System.out.println("Zapisano pomyślnie na serwerze.");
+            } catch (Exception ex) {
+                System.out.println("Brak połączenia z serwerem. Zapis bazy niemożliwy.");
+            }
+            
+            // Raport lokalny pozostaje bez zmian
+            com.mario.io.GameFileManager gfm = new com.mario.io.GameFileManager();
+            String report = "=== RAPORT Z DZIAŁANIA PROGRAMU ===\n" +
+                            "Gracz: Player1\n" +
+                            "Zebrane monety: " + coins + "\n" +
+                            "Pokonane Goomby: " + goombasDefeated + "\n" +
+                            "Status sieci: " + ((gameClient != null && gameClient.connected) ? "Połączono" : "Brak połączenia lub gra Single Player") + "\n" +
+                            "Kod pokoju: " + lobbyCode + "\n" +
+                            "Czas zakonczenia: " + java.time.LocalDateTime.now().toString() + "\n" +
+                            "===================================\n";
+            gfm.writeReport("reports", report);
+            System.out.println("Raport zapisany pomyślnie.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**

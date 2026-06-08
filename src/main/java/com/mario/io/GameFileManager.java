@@ -39,15 +39,7 @@ public class GameFileManager {
 
 
 
-    public GameData loadGameData(String path) throws IOException, ClassNotFoundException {
-        File file = new File(path);
-        if (!file.exists()) {
-            return null;
-        }
-        try (ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(file))) {
-            return (GameData) inputStream.readObject();
-        }
-    }
+
 
     public String writeReport(String directory, String reportBody) throws IOException {
         File dir = new File(directory);
