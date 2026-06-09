@@ -1,0 +1,8 @@
+=== RAPORT Z DZIAĹ�ANIA PROGRAMU ===
+Gracz: Player1
+Zebrane monety: 0
+Pokonane Goomby: 0
+Status sieci: Brak poĹ‚Ä…czenia lub gra Single Player
+Kod pokoju: Oczekiwanie...
+Czas zakonczenia: 2026-06-09T02:13:53.388339900
+===================================

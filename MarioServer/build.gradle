@@ -13,3 +13,15 @@ repositories {
 application {
     mainClass = 'com.marioserver.Server'
 }
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(22)
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+

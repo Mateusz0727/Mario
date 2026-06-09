@@ -35,7 +35,7 @@ public class Game extends Application {
 
     // --- Game state ---
     public enum GameState {
-        MENU, LOBBY, PLAYING
+        MENU, LOBBY, PLAYING, GAME_OVER
     }
 
     public static GameState state = GameState.MENU;
@@ -48,7 +48,7 @@ public class Game extends Application {
 
     public static void initOnlineClient(boolean create, String code) {
         state = GameState.LOBBY;
-        gameClient = new com.mario.net.GameClient("10.142.108.100", 1234);
+        gameClient = new com.mario.net.GameClient("127.0.0.1", 1234);
         gameClient.start();
         if (create) {
             gameClient.sendPacket(com.mario.net.Packet.createRoom());
@@ -102,7 +102,9 @@ public class Game extends Application {
         goombasDefeated = 0;
 
         String levelPath = "/level.png";
-        if (currentLevel == 2) {
+        if (menuIndex == 1) { // Online Mode
+            levelPath = "/levelmulti.png";
+        } else if (currentLevel == 2) {
             levelPath = "/level2.png";
         }
 
@@ -150,7 +152,7 @@ public class Game extends Application {
 
         try {
             System.out.println("Łączenie z serwerem w celu pobrania statystyk...");
-            java.net.Socket s = new java.net.Socket("10.142.108.100", 1234);
+            java.net.Socket s = new java.net.Socket("127.0.0.1", 1234);
             java.io.ObjectOutputStream out = new java.io.ObjectOutputStream(s.getOutputStream());
             java.io.ObjectInputStream in = new java.io.ObjectInputStream(s.getInputStream());
 
@@ -204,20 +206,29 @@ public class Game extends Application {
                     Player localPlayer = (Player) p;
                     int scaleState = localPlayer.state == com.mario.states.PlayerState.BIG ? 1 : 0;
 
-                    // Budowa paczki o sobie samym
                     com.mario.net.GameData data = new com.mario.net.GameData(
-                            "Player1", p.getX(), p.getY(), p.jumping, p.falling, scaleState, 0);
+                            "Player1", p.getX(), p.getY(), p.jumping, p.falling, scaleState, localPlayer.facingRight ? 1 : 0);
 
                     // Wyrzucenie fizyki przez lejek OOS TCP
                     gameClient.sendPacket(com.mario.net.Packet.update(lobbyCode, data));
                 }
-            } else if (gameClient != null && gameClient.connected && !gameClient.ghosts.isEmpty()) {
-                // Kamera podąża za duchem, jeśli nie żyjemy (Tryb obserwatora)
-                com.mario.net.GameData targetGhost = gameClient.ghosts.values().iterator().next();
-                int ghostW = targetGhost.state == 1 ? 128 : 64;
-                int ghostH = targetGhost.state == 1 ? 128 : 64;
-                cam.tick(targetGhost.x, targetGhost.y, ghostW, ghostH);
+            } else if (gameClient != null && gameClient.connected) {
+                if (gameClient.ghosts.isEmpty()) {
+                    Game.state = GameState.GAME_OVER;
+                } else {
+                    // Kamera podąża za duchem, jeśli nie żyjemy (Tryb obserwatora)
+                    com.mario.net.GameData targetGhost = gameClient.ghosts.values().iterator().next();
+                    if (targetGhost.state == 2) {
+                        // Both players are dead
+                        Game.state = GameState.GAME_OVER;
+                    } else {
+                        int ghostW = 48;
+                        int ghostH = targetGhost.state == 1 ? 96 : 48;
+                        cam.tick(targetGhost.x, targetGhost.y, ghostW, ghostH);
+                    }
+                }
             }
+            frameCounter++;
         }
     }
 
@@ -264,8 +275,22 @@ public class Game extends Application {
             gc.setFill(Color.CYAN);
             gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
-            // Shift rendering context by camera offset
-            gc.translate(-cam.getX(), -cam.getY());
+            gc.save(); // Save original untransformed context
+
+            if (menuIndex == 1) { // Online Mode - dopasuj całą mapę do ekranu
+                double scaleX = canvas.getWidth() / (double) levelWidthPixels;
+                double scaleY = canvas.getHeight() / (double) levelHeightPixels;
+                double fitScale = Math.min(scaleX, scaleY);
+                
+                double offsetX = (canvas.getWidth() - (levelWidthPixels * fitScale)) / 2.0;
+                double offsetY = (canvas.getHeight() - (levelHeightPixels * fitScale)) / 2.0;
+
+                gc.translate(offsetX, offsetY);
+                gc.scale(fitScale, fitScale);
+            } else {
+                // Shift rendering context by camera offset (Single Player)
+                gc.translate(-cam.getX(), -cam.getY());
+            }
 
             handler.render(gc);
 
@@ -274,6 +299,8 @@ public class Game extends Application {
                 gc.setGlobalAlpha(0.6);
 
                 for (com.mario.net.GameData targetGhost : gameClient.ghosts.values()) {
+                    if (targetGhost.state == 2) continue; // Nie rysuj martwego gracza
+
                     String id = targetGhost.playerId;
 
                     // Inicjalizacja lub pobranie pozycji interpolowanej
@@ -283,31 +310,49 @@ public class Game extends Application {
                         ghostPositions.put(id, currentPos);
                     }
 
+                    boolean moving = Math.abs(targetGhost.x - currentPos[0]) > 0.5;
+
                     // LERP - Płynne "dopływanie" ducha do celu (0.1 = siła wygładzania)
                     currentPos[0] += (targetGhost.x - currentPos[0]) * 0.15;
                     currentPos[1] += (targetGhost.y - currentPos[1]) * 0.15;
 
-                    int ghostW = targetGhost.state == 1 ? 128 : 64;
-                    int ghostH = targetGhost.state == 1 ? 128 : 64;
+                    int ghostW = 48; // Było 64 lub 128
+                    int ghostH = targetGhost.state == 1 ? 96 : 48; // Było 64 lub 128
 
-                    // Prosta animacja chodzenia dla duchów (oparta na ruchu)
-                    Image ghostImg = player.getImage(); // Fallback
-                    // Tu można by dodać wybór klatki dla ducha
+                    Image ghostImg = com.mario.entity.mob.Player.getGhostFrame(
+                            targetGhost.state, targetGhost.jumping, targetGhost.falling, moving, (frameCounter / 5));
 
-                    gc.drawImage(ghostImg, currentPos[0], currentPos[1], ghostW, ghostH);
+                    if (targetGhost.facing == 1) { // Prawa
+                        gc.drawImage(ghostImg, currentPos[0], currentPos[1], ghostW, ghostH);
+                    } else { // Lewa
+                        gc.drawImage(ghostImg, currentPos[0] + ghostW, currentPos[1], -ghostW, ghostH);
+                    }
                 }
 
                 gc.setGlobalAlpha(1.0);
             }
             // ===========================================
 
-            // Restore rendering context for static UI elements
-            gc.translate(cam.getX(), cam.getY());
+            gc.restore(); // Restore rendering context for static UI elements
 
             // Draw Score (Coins)
             gc.setFill(Color.WHITE);
             gc.setFont(javafx.scene.text.Font.font("Arial", javafx.scene.text.FontWeight.BOLD, 40));
             gc.fillText("Coins: " + coins, 20, 50);
+        } else if (state == GameState.GAME_OVER) {
+            gc.setFill(Color.BLACK);
+            gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+
+            gc.setFill(Color.WHITE);
+            gc.setFont(javafx.scene.text.Font.font("Arial", javafx.scene.text.FontWeight.BOLD, 60));
+            gc.fillText("GAME OVER", canvas.getWidth() / 2 - 180, 200);
+
+            gc.setFont(javafx.scene.text.Font.font("Arial", javafx.scene.text.FontWeight.BOLD, 40));
+            gc.fillText("Twój wynik:", canvas.getWidth() / 2 - 120, 350);
+            gc.setFill(Color.YELLOW);
+            gc.fillText("Monety: " + coins, canvas.getWidth() / 2 - 120, 420);
+            gc.setFill(Color.RED);
+            gc.fillText("Pokonane Goomby: " + goombasDefeated, canvas.getWidth() / 2 - 120, 490);
         }
     }
 
@@ -370,7 +415,7 @@ public class Game extends Application {
         try {
             // Zapis danych do bazy na Serwerze
             try {
-                java.net.Socket s = new java.net.Socket("10.142.108.100", 1234);
+                java.net.Socket s = new java.net.Socket("127.0.0.1", 1234);
                 java.io.ObjectOutputStream out = new java.io.ObjectOutputStream(s.getOutputStream());
 
                 String payload = coins + ";" + goombasDefeated + ";3;Level1";

@@ -80,6 +80,15 @@ public class Goomba extends Entity {
 
         x += velX;
         y += velY;
+        
+        if (x <= 0) {
+            x = 0;
+            velX = -velX;
+        }
+        if (x + width >= Game.levelWidthPixels) {
+            x = Game.levelWidthPixels - width;
+            velX = -velX;
+        }
 
         boolean onGround = false;
 

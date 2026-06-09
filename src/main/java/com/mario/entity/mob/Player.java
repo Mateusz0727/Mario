@@ -32,7 +32,7 @@ public class Player extends Entity {
 
     private int animTime = 0;
     private int animFrame = 0;
-    private boolean facingRight = true;
+    public boolean facingRight = true;
 
     private static void initSprites() {
         if (smallMarioIdle != null) return;
@@ -60,6 +60,19 @@ public class Player extends Entity {
 
         } catch (Exception e) {
             System.err.println("Could not load player animated sprites: " + e.getMessage());
+        }
+    }
+
+    public static Image getGhostFrame(int state, boolean jumping, boolean falling, boolean moving, int frame) {
+        initSprites();
+        if (state == 0) {
+            if (jumping || falling) return smallMarioJump;
+            else if (moving) return smallMarioWalk[frame % 3];
+            else return smallMarioIdle;
+        } else {
+            if (jumping || falling) return bigMarioJump;
+            else if (moving) return bigMarioWalk[frame % 3];
+            else return bigMarioIdle;
         }
     }
 
@@ -248,9 +261,12 @@ public class Player extends Entity {
                         die(); // Gracz zostaje usunięty z ekranu w obu trybach
                         if (Game.gameClient != null && Game.gameClient.connected) {
                             // Jesteśmy w trybie Online, zostajemy jako obserwator!
+                            com.mario.net.GameData data = new com.mario.net.GameData(
+                                    "Player1", getX(), getY(), false, false, 2, facingRight ? 1 : 0);
+                            Game.gameClient.sendPacket(com.mario.net.Packet.update(Game.lobbyCode, data));
                         } else {
                             // Jesteśmy w trybie Single Player, koniec gry
-                            Game.state = Game.GameState.MENU;
+                            Game.state = Game.GameState.GAME_OVER;
                         }
                     }
                 }

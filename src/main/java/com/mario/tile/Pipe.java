@@ -15,7 +15,7 @@ public class Pipe extends Tile {
 
     @Override
     public void render(GraphicsContext gc) {
-        gc.setFill(Color.rgb(128, 128, 128));
+        gc.setFill(Color.rgb(0, 200, 0)); // Green pipe color
         gc.fillRect(x, y, width, height);
     }
 
