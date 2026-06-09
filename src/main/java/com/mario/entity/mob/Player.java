@@ -262,7 +262,7 @@ public class Player extends Entity {
                         if (Game.gameClient != null && Game.gameClient.connected) {
                             // Jesteśmy w trybie Online, zostajemy jako obserwator!
                             com.mario.net.GameData data = new com.mario.net.GameData(
-                                    "Player1", getX(), getY(), false, false, 2, facingRight ? 1 : 0);
+                                    Game.playerName, getX(), getY(), false, false, 2, facingRight ? 1 : 0);
                             Game.gameClient.sendPacket(com.mario.net.Packet.update(Game.lobbyCode, data));
                         } else {
                             // Jesteśmy w trybie Single Player, koniec gry

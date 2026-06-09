@@ -7,6 +7,51 @@ import java.util.Map;
 
 public class ServerDatabase {
     private static final String DB_PATH = "database.txt";
+    private static final String ACCOUNTS_PATH = "accounts.txt";
+
+    public static synchronized boolean registerUser(String username, String password) {
+        File file = new File(ACCOUNTS_PATH);
+        if (file.exists()) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(file, StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    String[] parts = line.split(";", 2);
+                    if (parts.length >= 1 && parts[0].equals(username)) {
+                        return false; // User exists
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, StandardCharsets.UTF_8, true))) {
+            writer.write(username + ";" + password);
+            writer.newLine();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static synchronized boolean authenticateUser(String username, String password) {
+        File file = new File(ACCOUNTS_PATH);
+        if (!file.exists()) {
+            return false;
+        }
+        try (BufferedReader reader = new BufferedReader(new FileReader(file, StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(";", 2);
+                if (parts.length == 2 && parts[0].equals(username) && parts[1].equals(password)) {
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 
     public static synchronized String loadData(String playerId) {
         File file = new File(DB_PATH);

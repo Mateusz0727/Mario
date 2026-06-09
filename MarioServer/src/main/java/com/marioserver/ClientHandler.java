@@ -112,6 +112,26 @@ public class ClientHandler extends Thread {
                             System.out.println("Zainicjowano nowe dane dla gracza: " + packet.roomCode);
                         }
                     }
+                    else if (packet.type == Packet.Type.LOGIN_REQUEST) {
+                        boolean ok = ServerDatabase.authenticateUser(packet.roomCode, packet.message);
+                        if (ok) {
+                            sendObject(Packet.loginResponse(true, "Zalogowano pomyślnie."));
+                            System.out.println("Gracz " + packet.roomCode + " zalogował się.");
+                        } else {
+                            sendObject(Packet.loginResponse(false, "Błędny login lub hasło."));
+                            System.out.println("Nieudana próba logowania dla: " + packet.roomCode);
+                        }
+                    }
+                    else if (packet.type == Packet.Type.REGISTER_REQUEST) {
+                        boolean ok = ServerDatabase.registerUser(packet.roomCode, packet.message);
+                        if (ok) {
+                            sendObject(Packet.registerResponse(true, "Konto utworzone!"));
+                            System.out.println("Gracz " + packet.roomCode + " zarejestrował się.");
+                        } else {
+                            sendObject(Packet.registerResponse(false, "Login jest już zajęty."));
+                            System.out.println("Nieudana próba rejestracji (zajęte): " + packet.roomCode);
+                        }
+                    }
                 }
             }
         } catch (java.io.EOFException e) {

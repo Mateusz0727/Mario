@@ -41,6 +41,7 @@ public class Game extends Application {
     public static GameState state = GameState.MENU;
     public static int menuIndex = 0; // 0 = Single Player, 1 = Online Mode
     public static int currentLevel = 1;
+    public static String playerName = "Player1";
 
     // --- System Sieciowy ---
     public static com.mario.net.GameClient gameClient;
@@ -149,14 +150,48 @@ public class Game extends Application {
         levelHeightPixels = (int) levelImage.getHeight() * 64;
 
         handler.createLevel(levelImage);
+    }
 
+    public static String authenticate(String username, String password, boolean isRegister) {
         try {
-            System.out.println("Łączenie z serwerem w celu pobrania statystyk...");
             java.net.Socket s = new java.net.Socket("127.0.0.1", 1234);
             java.io.ObjectOutputStream out = new java.io.ObjectOutputStream(s.getOutputStream());
             java.io.ObjectInputStream in = new java.io.ObjectInputStream(s.getInputStream());
 
-            out.writeObject(com.mario.net.Packet.loadDb("Player1"));
+            if (isRegister) {
+                out.writeObject(com.mario.net.Packet.register(username, password));
+            } else {
+                out.writeObject(com.mario.net.Packet.login(username, password));
+            }
+            out.flush();
+
+            Object obj = in.readObject();
+            s.close();
+
+            if (obj instanceof com.mario.net.Packet) {
+                com.mario.net.Packet p = (com.mario.net.Packet) obj;
+                if (p.type == com.mario.net.Packet.Type.LOGIN_RESPONSE || p.type == com.mario.net.Packet.Type.REGISTER_RESPONSE) {
+                    if ("SUCCESS".equals(p.roomCode)) {
+                        return "SUCCESS";
+                    } else {
+                        return p.message;
+                    }
+                }
+            }
+            return "Nieznany błąd serwera.";
+        } catch (Exception e) {
+            return "Brak połączenia z serwerem.";
+        }
+    }
+
+    public static void fetchPlayerStats() {
+        try {
+            System.out.println("Łączenie z serwerem w celu pobrania statystyk dla: " + playerName + "...");
+            java.net.Socket s = new java.net.Socket("127.0.0.1", 1234);
+            java.io.ObjectOutputStream out = new java.io.ObjectOutputStream(s.getOutputStream());
+            java.io.ObjectInputStream in = new java.io.ObjectInputStream(s.getInputStream());
+
+            out.writeObject(com.mario.net.Packet.loadDb(playerName));
             out.flush();
 
             Object obj = in.readObject();
@@ -167,7 +202,7 @@ public class Game extends Application {
                     if (parts.length >= 4) {
                         coins = Integer.parseInt(parts[0]);
                         goombasDefeated = Integer.parseInt(parts[1]);
-                        System.out.println("Wczytano statystyki z serwera dla Player1. Monety: " + coins);
+                        System.out.println("Wczytano statystyki z serwera dla " + playerName + ". Monety: " + coins);
                     }
                 }
             }
@@ -207,7 +242,7 @@ public class Game extends Application {
                     int scaleState = localPlayer.state == com.mario.states.PlayerState.BIG ? 1 : 0;
 
                     com.mario.net.GameData data = new com.mario.net.GameData(
-                            "Player1", p.getX(), p.getY(), p.jumping, p.falling, scaleState, localPlayer.facingRight ? 1 : 0);
+                            playerName, p.getX(), p.getY(), p.jumping, p.falling, scaleState, localPlayer.facingRight ? 1 : 0);
 
                     // Wyrzucenie fizyki przez lejek OOS TCP
                     gameClient.sendPacket(com.mario.net.Packet.update(lobbyCode, data));
@@ -419,7 +454,7 @@ public class Game extends Application {
                 java.io.ObjectOutputStream out = new java.io.ObjectOutputStream(s.getOutputStream());
 
                 String payload = coins + ";" + goombasDefeated + ";3;Level1";
-                out.writeObject(com.mario.net.Packet.saveDb("Player1", payload));
+                out.writeObject(com.mario.net.Packet.saveDb(playerName, payload));
                 out.flush();
 
                 s.close();
@@ -431,7 +466,7 @@ public class Game extends Application {
             // Raport lokalny pozostaje bez zmian
             com.mario.io.GameFileManager gfm = new com.mario.io.GameFileManager();
             String report = "=== RAPORT Z DZIAŁANIA PROGRAMU ===\n" +
-                    "Gracz: Player1\n" +
+                    "Gracz: " + playerName + "\n" +
                     "Zebrane monety: " + coins + "\n" +
                     "Pokonane Goomby: " + goombasDefeated + "\n" +
                     "Status sieci: "

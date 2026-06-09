@@ -19,7 +19,11 @@ public class Packet implements Serializable {
         ENTITY_SYNC,
         SAVE_DB,
         LOAD_DB,
-        LOAD_DB_RESPONSE
+        LOAD_DB_RESPONSE,
+        LOGIN_REQUEST,
+        LOGIN_RESPONSE,
+        REGISTER_REQUEST,
+        REGISTER_RESPONSE
     }
 
     public Type type;
@@ -109,6 +113,42 @@ public class Packet implements Serializable {
         Packet p = new Packet();
         p.type = Type.LOAD_DB;
         p.roomCode = playerId;
+        return p;
+    }
+
+    // Konstruktor do logowania (żądanie)
+    public static Packet login(String username, String password) {
+        Packet p = new Packet();
+        p.type = Type.LOGIN_REQUEST;
+        p.roomCode = username;
+        p.message = password;
+        return p;
+    }
+
+    // Konstruktor odpowiedzi na logowanie
+    public static Packet loginResponse(boolean success, String msg) {
+        Packet p = new Packet();
+        p.type = Type.LOGIN_RESPONSE;
+        p.roomCode = success ? "SUCCESS" : "ERROR";
+        p.message = msg;
+        return p;
+    }
+
+    // Konstruktor do rejestracji
+    public static Packet register(String username, String password) {
+        Packet p = new Packet();
+        p.type = Type.REGISTER_REQUEST;
+        p.roomCode = username;
+        p.message = password;
+        return p;
+    }
+
+    // Konstruktor odpowiedzi na rejestrację
+    public static Packet registerResponse(boolean success, String msg) {
+        Packet p = new Packet();
+        p.type = Type.REGISTER_RESPONSE;
+        p.roomCode = success ? "SUCCESS" : "ERROR";
+        p.message = msg;
         return p;
     }
 
