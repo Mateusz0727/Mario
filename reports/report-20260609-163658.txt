@@ -1,0 +1,8 @@
+=== RAPORT Z DZIAŁANIA PROGRAMU ===
+Gracz: Player1
+Zebrane monety: 0
+Pokonane Goomby: 0
+Status sieci: Połączono
+Kod pokoju: ZRTL
+Czas zakonczenia: 2026-06-09T16:36:58.146519400
+===================================

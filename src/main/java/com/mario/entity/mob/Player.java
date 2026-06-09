@@ -18,6 +18,7 @@ public class Player extends Entity {
     public boolean leftPressed = false;
     public boolean rightPressed = false;
     public boolean upPressed = false;
+    public boolean onTrampoline = false;
 
     private int pixelsTravelled = 0;
 
@@ -126,7 +127,7 @@ public class Player extends Entity {
 
         if (upPressed && !jumping && !falling) {
             jumping = true;
-            gravity = 16.0; // Trochę wyższy skok (było 14.0)
+            gravity = onTrampoline ? 22.0 : 16.0; // Wyższy skok na trampolinie, inaczej normalny
         }
 
         // Domyślnie zakładamy spadek, jeśli nie skaczemy (kolizja poniżej to skoryguje)
@@ -142,7 +143,7 @@ public class Player extends Entity {
         for (Tile t : handler.tile) {
             if (!t.solid && !goingDownPipe) continue;
 
-            if (t.getId() == Id.wall || t.getId() == Id.powerUp || t.getId() == Id.pipe) {
+            if (t.getId() == Id.wall || t.getId() == Id.powerUp || t.getId() == Id.pipe || t.getId() == Id.trampoline) {
                 if (getBoundsLeft().intersects(t.getBounds())) {
                     setVelX(0);
                     x = t.getX() + t.width;
@@ -155,6 +156,7 @@ public class Player extends Entity {
         }
 
         // RUCH I KOLIZJE PIONOWE (Y)
+        onTrampoline = false;
         y += velY;
 
         // Zabezpieczenie krawędzi mapy
@@ -170,7 +172,7 @@ public class Player extends Entity {
         for (Tile t : handler.tile) {
             if (!t.solid && !goingDownPipe) continue;
 
-            if (t.getId() == Id.wall || t.getId() == Id.powerUp || t.getId() == Id.pipe) {
+            if (t.getId() == Id.wall || t.getId() == Id.powerUp || t.getId() == Id.pipe || t.getId() == Id.trampoline) {
                 if (getBoundsTop().intersects(t.getBounds())) {
                     setVelY(0);
                     if (jumping) {
@@ -192,6 +194,11 @@ public class Player extends Entity {
 
                 if (getBoundsBottom().intersects(t.getBounds())) {
                     setVelY(0);
+                    
+                    if (t.getId() == Id.trampoline) {
+                        onTrampoline = true;
+                    }
+                    
                     if (falling) {
                         falling = false;
                         gravity = 0.0;
@@ -250,7 +257,6 @@ public class Player extends Entity {
                     gravity = 8.0;
 
                     goombaEntity.die();
-                    Game.checkForLevelAdvance();
                 } else if (getBounds().intersects(e.getBounds())) {
                     if (state == PlayerState.BIG) {
                         state = PlayerState.SMALL;

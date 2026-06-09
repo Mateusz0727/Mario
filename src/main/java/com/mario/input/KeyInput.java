@@ -45,7 +45,7 @@ public class KeyInput {
                             p.upPressed = true;
                             if (!p.jumping && !p.falling) {
                                 p.jumping = true;
-                                p.gravity = 14.0;
+                                p.gravity = p.onTrampoline ? 22.0 : 16.0;
                             }
                         }
                         break;

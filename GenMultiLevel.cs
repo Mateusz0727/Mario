@@ -15,6 +15,8 @@ class Program
         Color goomba = Color.FromArgb(255, 255, 0, 0); // Red
         Color pow = Color.FromArgb(255, 255, 255, 0); // Yellow
         Color pipe = Color.FromArgb(255, 0, 255, 0); // Green
+        Color trampoline = Color.FromArgb(255, 255, 0, 255); // Magenta
+        Color coinGhost = Color.FromArgb(255, 0, 255, 255); // Cyan
         
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
@@ -24,13 +26,20 @@ class Program
         
         // Floor
         for (int x = 0; x < w; x++) img.SetPixel(x, 12, wall);
+        img.SetPixel(11, 12, trampoline);
+        img.SetPixel(18, 12, trampoline);
         
         // Player spawn
         img.SetPixel(15, 11, player);
         
+        // Ghost spawn (na wyższej platformie)
+        img.SetPixel(15, 5, coinGhost);
+        
         // Level 1 platforms
         for (int x = 0; x <= 9; x++) img.SetPixel(x, 9, wall);
         for (int x = 20; x <= 29; x++) img.SetPixel(x, 9, wall);
+        img.SetPixel(4, 9, trampoline);
+        img.SetPixel(25, 9, trampoline);
         
         // POW Block
         img.SetPixel(14, 9, pow);
@@ -43,11 +52,8 @@ class Program
         for (int x = 0; x <= 6; x++) img.SetPixel(x, 3, wall);
         for (int x = 23; x <= 29; x++) img.SetPixel(x, 3, wall);
         
-        // Goombas
-        img.SetPixel(2, 2, goomba);
-        img.SetPixel(27, 2, goomba);
-        img.SetPixel(10, 5, goomba);
-        img.SetPixel(20, 5, goomba);
+        // Goombas (spawned dynamically now)
+        // Removed static goombas
         
         // Add "pipes" at the top corners (green blocks just to make it look right)
         img.SetPixel(0, 2, pipe);

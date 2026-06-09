@@ -71,7 +71,8 @@ public class Game extends Application {
     public static Sprite player;
     public static Sprite goomba;
     public static Sprite mushroom;
-    public static Sprite coin;
+    public static Sprite[] coinAnim = new Sprite[4];
+    public static Sprite coinGhostSprite;
     public static Sprite powerUp;
     public static Sprite usedPowerUp;
     
@@ -83,7 +84,14 @@ public class Game extends Application {
 
     public static boolean levelPendingAdvance = false;
 
+    // Spawner Goombas
+    public static java.util.Random randomSpawner = new java.util.Random(1337);
+    public static int spawnerTickCount = 0;
+    public static int nextSpawnTime = 180;
+
     public static void checkForLevelAdvance() {
+        if (menuIndex == 1) return; // W trybie multiplayer nie kończymy poziomu przez zebranie monet!
+
         boolean hasCoins = false;
         for (com.mario.tile.Tile t : handler.tile) {
             if (t.getId() == Id.coin && !t.removed) {
@@ -101,6 +109,10 @@ public class Game extends Application {
         handler.tile.clear();
         coins = 0;
         goombasDefeated = 0;
+        
+        randomSpawner = new java.util.Random(1337);
+        spawnerTickCount = 0;
+        nextSpawnTime = randomSpawner.nextInt(300) + 180;
 
         String levelPath = "/level.png";
         if (menuIndex == 1) { // Online Mode
@@ -136,7 +148,10 @@ public class Game extends Application {
         player = new Sprite(sheet, 7, 7);
         goomba = new Sprite(sheet, 1, 1); // placeholder coordinates
         mushroom = new Sprite(sheet, 2, 2); // loaded from mushroom.png
-        coin = new Sprite(sheet, 8, 1); // Coin
+        for (int i = 0; i < 4; i++) {
+            coinAnim[i] = new Sprite(sheet, i + 1, 36);
+        }
+        coinGhostSprite = new Sprite(sheet, 7, 7);
         powerUp = new Sprite(sheet, 3, 1); // Question Block
         usedPowerUp = new Sprite(sheet, 20, 1); // Used Block
 
@@ -228,6 +243,22 @@ public class Game extends Application {
                     state = GameState.MENU;
                 } else {
                     resetLevel();
+                }
+            }
+            
+            // Goomba Spawner dla mapy multiplayer
+            if (menuIndex == 1) {
+                spawnerTickCount++;
+                if (spawnerTickCount >= nextSpawnTime) {
+                    spawnerTickCount = 0;
+                    // Losowy czas 3-8 sekund (180 - 480 klatek przy 60 FPS)
+                    nextSpawnTime = randomSpawner.nextInt(300) + 180;
+                    
+                    int pipeSide = randomSpawner.nextInt(2); // 0 = lewa rura, 1 = prawa rura
+                    int spawnX = (pipeSide == 0) ? (2 * 64) : (27 * 64);
+                    int spawnY = 2 * 64; // Wysokość rury
+                    
+                    handler.addEntity(new com.mario.entity.mob.Goomba(spawnX, spawnY, 64, 64, true, Id.goomba, handler));
                 }
             }
 
