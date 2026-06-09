@@ -1,0 +1,8 @@
+=== RAPORT Z DZIAŁANIA PROGRAMU ===
+Gracz: Player1
+Zebrane monety: 0
+Pokonane Goomby: 2
+Status sieci: Połączono
+Kod pokoju: 3QNN
+Czas zakonczenia: 2026-06-09T17:05:40.805281900
+===================================

@@ -28,16 +28,11 @@ public class Goomba extends Entity {
         }
         this.icon = loadedIcon;
 
-        int dir = random.nextInt(2);
-
-        switch (dir) {
-            case 0:
-                setVelX(-2);
-                break;
-
-            case 1:
-                setVelX(2);
-                break;
+        // Zawsze idź w stronę środka poziomu
+        if (x < Game.levelWidthPixels / 2) {
+            setVelX(2); // Start po lewej -> idź w prawo
+        } else {
+            setVelX(-2); // Start po prawej -> idź w lewo
         }
     }
 
@@ -93,7 +88,7 @@ public class Goomba extends Entity {
         boolean onGround = false;
 
         for (Tile t : handler.tile) {
-            if (!t.solid) continue;
+            if (!t.solid || t.getId() == Id.coin) continue;
 
             if (getBoundsBottom().intersects(t.getBounds())) {
                 onGround = true;

@@ -1,0 +1,8 @@
+=== RAPORT Z DZIAŁANIA PROGRAMU ===
+Gracz: Player1
+Zebrane monety: 4
+Pokonane Goomby: 3
+Status sieci: Połączono
+Kod pokoju: 355V
+Czas zakonczenia: 2026-06-09T17:23:03.516050300
+===================================
