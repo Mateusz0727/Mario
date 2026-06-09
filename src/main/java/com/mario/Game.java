@@ -40,6 +40,7 @@ public class Game extends Application {
 
     public static GameState state = GameState.MENU;
     public static int menuIndex = 0; // 0 = Single Player, 1 = Online Mode
+    public static int currentLevel = 1;
 
     // --- System Sieciowy ---
     public static com.mario.net.GameClient gameClient;
@@ -72,13 +73,26 @@ public class Game extends Application {
     public static Sprite coin;
     public static Sprite powerUp;
     public static Sprite usedPowerUp;
+    
+    public static javafx.scene.image.Image mushroomImage;
 
     private Canvas canvas;
     private GraphicsContext gc;
     private KeyInput keyInput;
 
+    public static boolean levelPendingAdvance = false;
+
     public static void checkForLevelAdvance() {
-        // TODO: implement level advance logic
+        boolean hasCoins = false;
+        for (com.mario.tile.Tile t : handler.tile) {
+            if (t.getId() == Id.coin && !t.removed) {
+                hasCoins = true;
+                break;
+            }
+        }
+        if (!hasCoins) {
+            levelPendingAdvance = true;
+        }
     }
 
     public static void resetLevel() {
@@ -87,8 +101,17 @@ public class Game extends Application {
         coins = 0;
         goombasDefeated = 0;
 
+        String levelPath = "/level.png";
+        if (currentLevel == 2) {
+            levelPath = "/level2.png";
+        }
+
         javafx.scene.image.Image levelImage = new javafx.scene.image.Image(
-                Game.class.getResourceAsStream("/level.png"));
+                Game.class.getResourceAsStream(levelPath));
+        
+        levelWidthPixels = (int) levelImage.getWidth() * 64;
+        levelHeightPixels = (int) levelImage.getHeight() * 64;
+
         handler.createLevel(levelImage);
 
         com.mario.entity.Entity p = handler.findPlayer();
@@ -106,16 +129,18 @@ public class Game extends Application {
 
         keyInput = new KeyInput();
 
-        grass = new Sprite(sheet, 9, 4);
+        grass = new Sprite(sheet, 2, 1); // Cegla
         player = new Sprite(sheet, 7, 7);
         goomba = new Sprite(sheet, 1, 1); // placeholder coordinates
-        mushroom = new Sprite(sheet, 2, 2); // placeholder coordinates
-        coin = new Sprite(sheet, 3, 3); // placeholder coordinates
-        powerUp = new Sprite(sheet, 4, 4); // placeholder coordinates
-        usedPowerUp = new Sprite(sheet, 5, 5); // placeholder coordinates
+        mushroom = new Sprite(sheet, 2, 2); // loaded from mushroom.png
+        coin = new Sprite(sheet, 8, 1); // Coin
+        powerUp = new Sprite(sheet, 3, 1); // Question Block
+        usedPowerUp = new Sprite(sheet, 20, 1); // Used Block
 
         javafx.scene.image.Image levelImage = new javafx.scene.image.Image(
                 getClass().getResourceAsStream("/level.png"));
+                
+        mushroomImage = new javafx.scene.image.Image(getClass().getResourceAsStream("/mushroom.png"));
 
         // Update level dimensions based on the actual image size
         levelWidthPixels = (int) levelImage.getWidth() * 64;
@@ -156,6 +181,18 @@ public class Game extends Application {
     public void tick() {
         if (state == GameState.PLAYING) {
             handler.tick();
+
+            if (levelPendingAdvance) {
+                levelPendingAdvance = false;
+                currentLevel++;
+                if (currentLevel > 2) {
+                    System.out.println("Gratulacje! Ukończyłeś wszystkie poziomy.");
+                    currentLevel = 1;
+                    state = GameState.MENU;
+                } else {
+                    resetLevel();
+                }
+            }
 
             // Update camera position to follow player
             com.mario.entity.Entity p = handler.findPlayer();

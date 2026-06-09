@@ -15,6 +15,7 @@ public class Goomba extends Entity {
 
     private final Image icon;
     private Random random = new Random();
+    public boolean dying = false;
 
     public Goomba(double x, double y, int width, int height, boolean solid, Id id, Handler handler) {
         super(x, y, width, height, solid, id, handler);
@@ -41,14 +42,42 @@ public class Goomba extends Entity {
     }
 
     public void render(GraphicsContext gc) {
-        if (icon != null) {
-            gc.drawImage(icon, x, y, width, height);
+        if (dying) {
+            if (icon != null) {
+                gc.drawImage(icon, x, y + height, width, -height);
+            } else {
+                gc.drawImage(Game.goomba.getImage(), x, y + height, width, -height);
+            }
         } else {
-            gc.drawImage(Game.goomba.getImage(), x, y, width, height);
+            if (icon != null) {
+                gc.drawImage(icon, x, y, width, height);
+            } else {
+                gc.drawImage(Game.goomba.getImage(), x, y, width, height);
+            }
+        }
+    }
+
+    @Override
+    public void die() {
+        if (!dying) {
+            dying = true;
+            solid = false;
+            setVelX(0);
+            setVelY(-5); // Pop up slightly when stomped
         }
     }
 
     public void tick() {
+        if (dying) {
+            setVelY(velY + 0.5); // Apply simple gravity
+            x += velX;
+            y += velY;
+            if (y > Game.levelHeightPixels + 100) {
+                handler.removeEntity(this); // Remove once off screen
+            }
+            return;
+        }
+
         x += velX;
         y += velY;
 

@@ -8,23 +8,114 @@ import com.mario.states.PlayerState;
 import com.mario.tile.Tile;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
+import javafx.scene.image.PixelReader;
+import javafx.scene.image.WritableImage;
 
 public class Player extends Entity {
 
     public PlayerState state;
+    public boolean leftPressed = false;
+    public boolean rightPressed = false;
+    public boolean upPressed = false;
 
     private int pixelsTravelled = 0;
 
+    // Sprite sheet animation fields
+    private static Image smallMarioIdle;
+    private static Image[] smallMarioWalk;
+    private static Image smallMarioJump;
+
+    private static Image bigMarioIdle;
+    private static Image[] bigMarioWalk;
+    private static Image bigMarioJump;
+
+    private int animTime = 0;
+    private int animFrame = 0;
+    private boolean facingRight = true;
+
+    private static void initSprites() {
+        if (smallMarioIdle != null) return;
+        try {
+            Image sheet = new Image(Player.class.getResourceAsStream("/mario_sheet.png"));
+            PixelReader reader = sheet.getPixelReader();
+
+            // Small Mario Right (Tight coordinates)
+            smallMarioIdle = new WritableImage(reader, 86, 47, 25, 24);
+            smallMarioWalk = new Image[] {
+                new WritableImage(reader, 137, 48, 25, 23),
+                new WritableImage(reader, 189, 47, 25, 24),
+                new WritableImage(reader, 241, 47, 24, 24)
+            };
+            smallMarioJump = new WritableImage(reader, 343, 48, 25, 23);
+
+            // Big Mario Right (Tight coordinates)
+            bigMarioIdle = new WritableImage(reader, 86, 189, 24, 35);
+            bigMarioWalk = new Image[] {
+                new WritableImage(reader, 137, 189, 25, 35),
+                new WritableImage(reader, 189, 191, 25, 33),
+                new WritableImage(reader, 240, 189, 25, 35)
+            };
+            bigMarioJump = new WritableImage(reader, 343, 189, 25, 35);
+
+        } catch (Exception e) {
+            System.err.println("Could not load player animated sprites: " + e.getMessage());
+        }
+    }
+
     public Player(double x, double y, int width, int height, boolean solid, Id id, Handler handler) {
-        super(x, y, width, height, solid, id, handler);
+        super(x, y, 48, 48, solid, id, handler);
         state = PlayerState.SMALL;
     }
 
     public void render(GraphicsContext gc) {
-        gc.drawImage(Game.player.getImage(), x, y, width, height);
+        initSprites();
+        Image currentFrame = null;
+
+        if (state == PlayerState.SMALL) {
+            if (jumping || falling) {
+                currentFrame = smallMarioJump;
+            } else if (velX != 0) {
+                currentFrame = smallMarioWalk[animFrame];
+            } else {
+                currentFrame = smallMarioIdle;
+            }
+        } else {
+            if (jumping || falling) {
+                currentFrame = bigMarioJump;
+            } else if (velX != 0) {
+                currentFrame = bigMarioWalk[animFrame];
+            } else {
+                currentFrame = bigMarioIdle;
+            }
+        }
+
+        if (currentFrame != null) {
+            if (facingRight) {
+                gc.drawImage(currentFrame, x, y, width, height);
+            } else {
+                gc.drawImage(currentFrame, x + width, y, -width, height);
+            }
+        } else {
+            gc.drawImage(Game.player.getImage(), x, y, width, height);
+        }
     }
 
+
     public void tick() {
+        if (leftPressed && !rightPressed) {
+            velX = -4; // Delikatnie szybciej (było -3)
+        } else if (rightPressed && !leftPressed) {
+            velX = 4; // Delikatnie szybciej (było 3)
+        } else {
+            velX = 0;
+        }
+
+        if (upPressed && !jumping && !falling) {
+            jumping = true;
+            gravity = 16.0; // Trochę wyższy skok (było 14.0)
+        }
+
         // Domyślnie zakładamy spadek, jeśli nie skaczemy (kolizja poniżej to skoryguje)
         if (!jumping) falling = true;
 
@@ -88,14 +179,17 @@ public class Player extends Entity {
 
                 if (getBoundsBottom().intersects(t.getBounds())) {
                     setVelY(0);
-                    if (falling) falling = false;
+                    if (falling) {
+                        falling = false;
+                        gravity = 0.0;
+                    }
                     onGround = true;
                     y = t.getY() - height;
                 }
             }
 
             // Logika monet
-            if (getBounds().intersects(t.getBounds()) && t.getId() == Id.coin) {
+            if (getBounds().intersects(t.getBounds()) && t.getId() == Id.coin && !t.removed) {
                 Game.coins++;
                 t.removed = true;
                 if (Game.gameClient != null && Game.gameClient.connected) {
@@ -116,12 +210,10 @@ public class Player extends Entity {
             if (e.getId() == Id.mushroom) {
                 if (getBounds().intersects(e.getBounds())) {
                     if (state == PlayerState.SMALL) {
-                        double tpX = getX();
                         double tpY = getY();
-                        width *= 2;
-                        height *= 2;
-                        setX(tpX - width);
-                        setY(tpY - height);
+                        width = 48;
+                        height = 96;
+                        setY(tpY - 48);
                         state = PlayerState.BIG;
                     }
                     if (Game.gameClient != null && Game.gameClient.connected) {
@@ -130,20 +222,28 @@ public class Player extends Entity {
                     e.die();
                 }
             } else if (e.getId() == Id.goomba) {
-                if (getBoundsBottom().intersects(e.getBoundsTop())) {
+                Goomba goombaEntity = (Goomba) e;
+                if (goombaEntity.dying) {
+                    continue;
+                }
+                if (falling && getBoundsBottom().intersects(goombaEntity.getBounds()) && getY() + height / 2 < goombaEntity.getY() + goombaEntity.height / 2) {
                     Game.goombasDefeated++;
                     if (Game.gameClient != null && Game.gameClient.connected) {
-                        Game.gameClient.sendPacket(com.mario.net.Packet.entitySync(Game.lobbyCode, e.initX, e.initY, true));
+                        Game.gameClient.sendPacket(com.mario.net.Packet.entitySync(Game.lobbyCode, goombaEntity.initX, goombaEntity.initY, true));
                     }
-                    e.die();
+                    
+                    jumping = true;
+                    falling = false;
+                    gravity = 8.0;
+
+                    goombaEntity.die();
                     Game.checkForLevelAdvance();
                 } else if (getBounds().intersects(e.getBounds())) {
                     if (state == PlayerState.BIG) {
                         state = PlayerState.SMALL;
-                        width /= 2;
-                        height /= 2;
-                        x += width;
-                        y += height;
+                        width = 48;
+                        height = 48;
+                        y += 48;
                     } else if (state == PlayerState.SMALL) {
                         die(); // Gracz zostaje usunięty z ekranu w obu trybach
                         if (Game.gameClient != null && Game.gameClient.connected) {
@@ -193,5 +293,27 @@ public class Player extends Entity {
                 }
             }
         }
+
+        // --- ANIMATION UPDATE ---
+        if (velX > 0) {
+            facingRight = true;
+        } else if (velX < 0) {
+            facingRight = false;
+        }
+
+        if (velX != 0 && !jumping && !falling) {
+            animTime++;
+            if (animTime > 5) {
+                animTime = 0;
+                animFrame++;
+                if (animFrame >= 3) {
+                    animFrame = 0;
+                }
+            }
+        } else {
+            animFrame = 0;
+            animTime = 0;
+        }
     }
 }
+

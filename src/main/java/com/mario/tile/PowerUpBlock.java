@@ -7,15 +7,16 @@ import com.mario.entity.powerup.Mushroom;
 import com.mario.gfx.Sprite;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 
 public class PowerUpBlock extends Tile {
-    private Sprite powerUp;
+    private Image powerUp;
 
     private boolean poppedUp = false;
 
     private double spriteY = getY();
 
-    public PowerUpBlock(double x, double y, int width, int height, boolean solid, Id id, Handler handler, Sprite powerUp) {
+    public PowerUpBlock(double x, double y, int width, int height, boolean solid, Id id, Handler handler, Image powerUp) {
         super(x, y, width, height, solid, id, handler);
         this.powerUp = powerUp;
     }
@@ -23,7 +24,7 @@ public class PowerUpBlock extends Tile {
     @Override
     public void render(GraphicsContext gc) {
         if (activated && !poppedUp) {
-            gc.drawImage(powerUp.getImage(), x, spriteY, width, height);
+            gc.drawImage(powerUp, x, spriteY, width, height);
         }
         
         if (!activated) {

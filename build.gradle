@@ -17,6 +17,12 @@ application {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_22
-    targetCompatibility = JavaVersion.VERSION_22
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(22)
+    }
 }
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+

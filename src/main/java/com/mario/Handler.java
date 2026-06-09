@@ -82,7 +82,7 @@ public class Handler {
                 } else if (r == 255 && g == 250 && b == 0) { // Pale Yellow -> Coin
                     addTile(new com.mario.tile.Coin(x * 64, y * 64, 64, 64, true, Id.coin, this));
                 } else if (r == 255 && g == 255 && b == 0) { // Yellow -> PowerUpBlock (Mushroom)
-                    addTile(new com.mario.tile.PowerUpBlock(x * 64, y * 64, 64, 64, true, Id.powerUp, this, Game.mushroom));
+                    addTile(new com.mario.tile.PowerUpBlock(x * 64, y * 64, 64, 64, true, Id.powerUp, this, Game.mushroomImage));
                 }
             }
         }

@@ -74,6 +74,7 @@ public class GameClient extends Thread {
                     else if (packet.type == Packet.Type.START_GAME) {
                         System.out.println("Gracz 2 dołączył! Rozpoczynamy mapę.");
                         Platform.runLater(() -> {
+                            Game.currentLevel = 1;
                             Game.resetLevel();
                             Game.state = Game.GameState.PLAYING;
                         });

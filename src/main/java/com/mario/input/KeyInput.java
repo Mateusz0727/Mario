@@ -16,6 +16,7 @@ public class KeyInput {
                 Game.menuIndex = (Game.menuIndex == 0) ? 1 : 0;
             } else if (key == KeyCode.ENTER) {
                 if (Game.menuIndex == 0) { // Single Player
+                    Game.currentLevel = 1;
                     Game.resetLevel();
                     Game.state = Game.GameState.PLAYING;
                 } else if (Game.menuIndex == 1) { // Online Mode
@@ -49,15 +50,23 @@ public class KeyInput {
             if (entity.getId() == com.mario.Id.player) {
                 switch (key) {
                     case LEFT:
-                        entity.setVelX(-3);
+                        if (entity instanceof com.mario.entity.mob.Player) {
+                            ((com.mario.entity.mob.Player) entity).leftPressed = true;
+                        }
                         break;
                     case RIGHT:
-                        entity.setVelX(3);
+                        if (entity instanceof com.mario.entity.mob.Player) {
+                            ((com.mario.entity.mob.Player) entity).rightPressed = true;
+                        }
                         break;
                     case UP:
-                        if (!entity.jumping && !entity.falling) {
-                            entity.jumping = true;
-                            entity.gravity = 14.0;
+                        if (entity instanceof com.mario.entity.mob.Player) {
+                            com.mario.entity.mob.Player p = (com.mario.entity.mob.Player) entity;
+                            p.upPressed = true;
+                            if (!p.jumping && !p.falling) {
+                                p.jumping = true;
+                                p.gravity = 14.0;
+                            }
                         }
                         break;
                     default:
@@ -75,10 +84,19 @@ public class KeyInput {
             if (entity.getId() == com.mario.Id.player) {
                 switch (key) {
                     case LEFT:
-                        entity.setVelX(0);
+                        if (entity instanceof com.mario.entity.mob.Player) {
+                            ((com.mario.entity.mob.Player) entity).leftPressed = false;
+                        }
                         break;
                     case RIGHT:
-                        entity.setVelX(0);
+                        if (entity instanceof com.mario.entity.mob.Player) {
+                            ((com.mario.entity.mob.Player) entity).rightPressed = false;
+                        }
+                        break;
+                    case UP:
+                        if (entity instanceof com.mario.entity.mob.Player) {
+                            ((com.mario.entity.mob.Player) entity).upPressed = false;
+                        }
                         break;
                     default:
                         break;
