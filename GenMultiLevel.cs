@@ -17,6 +17,8 @@ class Program
         Color pipe = Color.FromArgb(255, 0, 255, 0); // Green
         Color trampoline = Color.FromArgb(255, 255, 0, 255); // Magenta
         Color coinGhost = Color.FromArgb(255, 0, 255, 255); // Cyan
+        Color cloudPipeUp = Color.FromArgb(255, 0, 100, 0); // Dark Green
+        Color cloudPipeDown = Color.FromArgb(255, 0, 101, 0); // Dark Green 2
         
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
@@ -25,15 +27,24 @@ class Program
         }
         
         // Floor
-        for (int x = 0; x < w; x++) img.SetPixel(x, 12, wall);
+        for (int x = 0; x < w; x++) {
+            if (x == 14 || x == 15) continue; // Dziura na rurę w podłodze
+            img.SetPixel(x, 12, wall);
+        }
         img.SetPixel(11, 12, trampoline);
         img.SetPixel(18, 12, trampoline);
+        
+        // CloudPipe na dole (środek, skierowana do góry) -> x=14, y=12
+        img.SetPixel(14, 12, cloudPipeUp);
         
         // Player spawn
         img.SetPixel(15, 11, player);
         
         // Ghost spawn (na wyższej platformie)
         img.SetPixel(15, 5, coinGhost);
+        
+        // CloudPipe na górze (środek, skierowana w dół) -> x=14, y=0 (zajmie y=0 i y=1)
+        img.SetPixel(14, 0, cloudPipeDown);
         
         // Level 1 platforms
         for (int x = 0; x <= 9; x++) img.SetPixel(x, 9, wall);
@@ -55,16 +66,10 @@ class Program
         // Goombas (spawned dynamically now)
         // Removed static goombas
         
-        // Add "pipes" at the top corners (green blocks just to make it look right)
-        img.SetPixel(0, 2, pipe);
-        img.SetPixel(0, 1, pipe);
-        img.SetPixel(1, 2, pipe);
-        img.SetPixel(1, 1, pipe);
+        // Add "pipes" at the top corners
+        img.SetPixel(0, 1, pipe); // 3x2 pipe po lewej stronie
         
-        img.SetPixel(28, 2, pipe);
-        img.SetPixel(28, 1, pipe);
-        img.SetPixel(29, 2, pipe);
-        img.SetPixel(29, 1, pipe);
+        img.SetPixel(27, 1, pipe); // 3x2 pipe po prawej stronie
         
         // Save
         img.Save(@"c:\Users\User\IdeaProjects\Mario\src\main\resources\levelmulti.png", System.Drawing.Imaging.ImageFormat.Png);

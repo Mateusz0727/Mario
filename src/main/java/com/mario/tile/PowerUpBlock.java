@@ -34,6 +34,8 @@ public class PowerUpBlock extends Tile {
         }
     }
 
+    private int refreshTimer = 0;
+
     @Override
     public void tick() {
         if (activated && !poppedUp) {
@@ -43,6 +45,16 @@ public class PowerUpBlock extends Tile {
                 m.initY = (int) y; // Stabilny identyfikator oparty na pozycji bloku
                 handler.addEntity(m);
                 poppedUp = true;
+            }
+        }
+        
+        if (poppedUp) {
+            refreshTimer++;
+            if (refreshTimer >= 1800) { // 30 sekund w 60 FPS
+                activated = false;
+                poppedUp = false;
+                spriteY = getY();
+                refreshTimer = 0;
             }
         }
     }

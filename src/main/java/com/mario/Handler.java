@@ -83,12 +83,17 @@ public class Handler {
                     addTile(new com.mario.tile.Coin(x * 64, y * 64, 64, 64, true, Id.coin, this));
                 } else if (r == 255 && g == 255 && b == 0) { // Yellow -> PowerUpBlock (Mushroom)
                     addTile(new com.mario.tile.PowerUpBlock(x * 64, y * 64, 64, 64, true, Id.powerUp, this, Game.mushroomImage));
-                } else if (r == 0 && g == 255 && b == 0) { // Green -> Pipe
-                    addTile(new com.mario.tile.Pipe(x * 64, y * 64, 64, 64, true, Id.pipe, this, 0));
+                } else if (r == 0 && g == 255 && b == 0) { // Green -> Pipe (192x128)
+                    int facing = (x > 15) ? 1 : 0; // facing 1 = flipped horizontally
+                    addTile(new com.mario.tile.Pipe(x * 64, y * 64, 192, 128, true, Id.pipe, this, facing));
                 } else if (r == 255 && g == 0 && b == 255) { // Magenta -> Trampoline
                     addTile(new com.mario.tile.Trampoline(x * 64, y * 64, 64, 64, true, Id.trampoline, this));
                 } else if (r == 0 && g == 255 && b == 255) { // Cyan -> CoinGhost
                     addEntity(new com.mario.entity.mob.CoinGhost(x * 64, y * 64, 64, 64, true, Id.coinGhost, this));
+                } else if (r == 0 && g == 100 && b == 0) { // Dark Green -> CloudPipe UP
+                    addTile(new com.mario.tile.CloudPipe(x * 64, y * 64, 128, 256, true, Id.cloudPipe, this, 0));
+                } else if (r == 0 && g == 101 && b == 0) { // Dark Green 2 -> CloudPipe DOWN
+                    addTile(new com.mario.tile.CloudPipe(x * 64, y * 64, 128, 256, true, Id.cloudPipe, this, 2));
                 }
             }
         }

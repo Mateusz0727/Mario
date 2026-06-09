@@ -11,6 +11,8 @@ import javafx.scene.canvas.GraphicsContext;
 public class CoinGhost extends Entity {
 
     private int coinDropTimer = 0;
+    private int teleportCooldown = 0;
+    private boolean teleportDirectionRight = false;
 
     public CoinGhost(double x, double y, int width, int height, boolean solid, Id id, Handler handler) {
         super(x, y, width, height, solid, id, handler);
@@ -27,6 +29,10 @@ public class CoinGhost extends Entity {
 
     @Override
     public void tick() {
+        if (teleportCooldown > 0) {
+            teleportCooldown--;
+        }
+
         x += velX;
         y += velY;
 
@@ -43,7 +49,27 @@ public class CoinGhost extends Entity {
         }
 
         for (Tile t : handler.tile) {
-            if (!t.solid || t.getId() == Id.coin) continue;
+            if (t.getId() == Id.cloudPipe && teleportCooldown == 0) {
+                if (getBounds().intersects(t.getBounds())) {
+                    for (Tile other : handler.tile) {
+                        if (other.getId() == Id.cloudPipe && other != t) {
+                            if (other.getY() == 0) { // Top pipe
+                                x = other.getX() + (other.width / 2.0) - (width / 2.0);
+                                y = 192; // Dolna granica wizualna wydłużonej górnej rury
+                            } else {
+                                x = other.getX();
+                                y = other.getY();
+                            }
+                            velX = teleportDirectionRight ? Math.abs(velX) : -Math.abs(velX);
+                            teleportDirectionRight = !teleportDirectionRight;
+                            teleportCooldown = 60; // 1 sekunda opóźnienia, żeby nie utknął w pętli
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (!t.solid || t.getId() == Id.coin || t.getId() == Id.cloudPipe) continue;
 
             if (getBoundsBottom().intersects(t.getBounds())) {
                 setVelY(0);

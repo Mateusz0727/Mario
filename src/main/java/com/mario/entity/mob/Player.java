@@ -143,7 +143,7 @@ public class Player extends Entity {
         for (Tile t : handler.tile) {
             if (!t.solid && !goingDownPipe) continue;
 
-            if (t.getId() == Id.wall || t.getId() == Id.powerUp || t.getId() == Id.pipe || t.getId() == Id.trampoline) {
+            if (t.getId() == Id.wall || t.getId() == Id.powerUp || t.getId() == Id.pipe || t.getId() == Id.trampoline || t.getId() == Id.cloudPipe) {
                 if (getBoundsLeft().intersects(t.getBounds())) {
                     setVelX(0);
                     x = t.getX() + t.width;
@@ -172,7 +172,7 @@ public class Player extends Entity {
         for (Tile t : handler.tile) {
             if (!t.solid && !goingDownPipe) continue;
 
-            if (t.getId() == Id.wall || t.getId() == Id.powerUp || t.getId() == Id.pipe || t.getId() == Id.trampoline) {
+            if (t.getId() == Id.wall || t.getId() == Id.powerUp || t.getId() == Id.pipe || t.getId() == Id.trampoline || t.getId() == Id.cloudPipe) {
                 if (getBoundsTop().intersects(t.getBounds())) {
                     setVelY(0);
                     if (jumping) {
@@ -263,6 +263,12 @@ public class Player extends Entity {
                         width = 48;
                         height = 48;
                         y += 48;
+                        
+                        Game.goombasDefeated++;
+                        if (Game.gameClient != null && Game.gameClient.connected) {
+                            Game.gameClient.sendPacket(com.mario.net.Packet.entitySync(Game.lobbyCode, goombaEntity.initX, goombaEntity.initY, true));
+                        }
+                        goombaEntity.die();
                     } else if (state == PlayerState.SMALL) {
                         die(); // Gracz zostaje usunięty z ekranu w obu trybach
                         if (Game.gameClient != null && Game.gameClient.connected) {

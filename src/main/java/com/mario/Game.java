@@ -76,6 +76,12 @@ public class Game extends Application {
     public static Sprite powerUp;
     public static Sprite usedPowerUp;
     
+    public static Sprite[] pipeTop = new Sprite[2];
+    public static Sprite[] pipeBody = new Sprite[2];
+    
+    public static Sprite[] bigPipeTop = new Sprite[3];
+    public static Sprite[] bigPipeBody = new Sprite[3];
+    
     public static javafx.scene.image.Image mushroomImage;
 
     private Canvas canvas;
@@ -154,6 +160,16 @@ public class Game extends Application {
         coinGhostSprite = new Sprite(sheet, 7, 7);
         powerUp = new Sprite(sheet, 3, 1); // Question Block
         usedPowerUp = new Sprite(sheet, 20, 1); // Used Block
+
+        for (int i = 0; i < 2; i++) {
+            pipeTop[i] = new Sprite(sheet, 15 + i, 1);
+            pipeBody[i] = new Sprite(sheet, 15 + i, 2);
+        }
+        
+        for (int i = 0; i < 3; i++) {
+            bigPipeTop[i] = new Sprite(sheet, 12 + i, 1);
+            bigPipeBody[i] = new Sprite(sheet, 12 + i, 2);
+        }
 
         javafx.scene.image.Image levelImage = new javafx.scene.image.Image(
                 getClass().getResourceAsStream("/level.png"));
@@ -255,7 +271,7 @@ public class Game extends Application {
                     nextSpawnTime = randomSpawner.nextInt(300) + 180;
                     
                     int pipeSide = randomSpawner.nextInt(2); // 0 = lewa rura, 1 = prawa rura
-                    int spawnX = (pipeSide == 0) ? (2 * 64) : (27 * 64);
+                    int spawnX = (pipeSide == 0) ? (3 * 64) : (26 * 64);
                     int spawnY = 2 * 64; // Wysokość rury
                     
                     handler.addEntity(new com.mario.entity.mob.Goomba(spawnX, spawnY, 64, 64, true, Id.goomba, handler));
