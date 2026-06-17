@@ -1,6 +1,3 @@
-<<<<<<< HEAD
 jacek;0;0;3;Level1
-Player1;10;1;3;Level1
-=======
+jan;1;0;3;Level1
 Player1;4;0;3;Level1
->>>>>>> 222fca28f6ab9f78ac641eb554737e2d84012e61

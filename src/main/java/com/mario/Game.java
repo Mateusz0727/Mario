@@ -44,12 +44,13 @@ public class Game extends Application {
     public static String playerName = "Player1";
 
     // --- System Sieciowy ---
+    public static String SERVER_IP = "127.0.0.1";
     public static com.mario.net.GameClient gameClient;
     public static String lobbyCode = "Oczekiwanie...";
 
     public static void initOnlineClient(boolean create, String code) {
         state = GameState.LOBBY;
-        gameClient = new com.mario.net.GameClient("127.0.0.1", 1234);
+        gameClient = new com.mario.net.GameClient(SERVER_IP, 1234);
         gameClient.start();
         if (create) {
             gameClient.sendPacket(com.mario.net.Packet.createRoom());
@@ -75,13 +76,13 @@ public class Game extends Application {
     public static Sprite coinGhostSprite;
     public static Sprite powerUp;
     public static Sprite usedPowerUp;
-    
+
     public static Sprite[] pipeTop = new Sprite[2];
     public static Sprite[] pipeBody = new Sprite[2];
-    
+
     public static Sprite[] bigPipeTop = new Sprite[3];
     public static Sprite[] bigPipeBody = new Sprite[3];
-    
+
     public static javafx.scene.image.Image mushroomImage;
 
     private Canvas canvas;
@@ -96,7 +97,8 @@ public class Game extends Application {
     public static int nextSpawnTime = 180;
 
     public static void checkForLevelAdvance() {
-        if (menuIndex == 1) return; // W trybie multiplayer nie kończymy poziomu przez zebranie monet!
+        if (menuIndex == 1)
+            return; // W trybie multiplayer nie kończymy poziomu przez zebranie monet!
 
         boolean hasCoins = false;
         for (com.mario.tile.Tile t : handler.tile) {
@@ -115,7 +117,7 @@ public class Game extends Application {
         handler.tile.clear();
         coins = 0;
         goombasDefeated = 0;
-        
+
         randomSpawner = new java.util.Random(1337);
         spawnerTickCount = 0;
         nextSpawnTime = randomSpawner.nextInt(300) + 180;
@@ -129,7 +131,7 @@ public class Game extends Application {
 
         javafx.scene.image.Image levelImage = new javafx.scene.image.Image(
                 Game.class.getResourceAsStream(levelPath));
-        
+
         levelWidthPixels = (int) levelImage.getWidth() * 64;
         levelHeightPixels = (int) levelImage.getHeight() * 64;
 
@@ -165,7 +167,7 @@ public class Game extends Application {
             pipeTop[i] = new Sprite(sheet, 15 + i, 1);
             pipeBody[i] = new Sprite(sheet, 15 + i, 2);
         }
-        
+
         for (int i = 0; i < 3; i++) {
             bigPipeTop[i] = new Sprite(sheet, 12 + i, 1);
             bigPipeBody[i] = new Sprite(sheet, 12 + i, 2);
@@ -173,7 +175,7 @@ public class Game extends Application {
 
         javafx.scene.image.Image levelImage = new javafx.scene.image.Image(
                 getClass().getResourceAsStream("/level.png"));
-                
+
         mushroomImage = new javafx.scene.image.Image(getClass().getResourceAsStream("/mushroom.png"));
 
         // Update level dimensions based on the actual image size
@@ -185,7 +187,7 @@ public class Game extends Application {
 
     public static String authenticate(String username, String password, boolean isRegister) {
         try {
-            java.net.Socket s = new java.net.Socket("127.0.0.1", 1234);
+            java.net.Socket s = new java.net.Socket(SERVER_IP, 1234);
             java.io.ObjectOutputStream out = new java.io.ObjectOutputStream(s.getOutputStream());
             java.io.ObjectInputStream in = new java.io.ObjectInputStream(s.getInputStream());
 
@@ -201,7 +203,8 @@ public class Game extends Application {
 
             if (obj instanceof com.mario.net.Packet) {
                 com.mario.net.Packet p = (com.mario.net.Packet) obj;
-                if (p.type == com.mario.net.Packet.Type.LOGIN_RESPONSE || p.type == com.mario.net.Packet.Type.REGISTER_RESPONSE) {
+                if (p.type == com.mario.net.Packet.Type.LOGIN_RESPONSE
+                        || p.type == com.mario.net.Packet.Type.REGISTER_RESPONSE) {
                     if ("SUCCESS".equals(p.roomCode)) {
                         return "SUCCESS";
                     } else {
@@ -218,7 +221,7 @@ public class Game extends Application {
     public static void fetchPlayerStats() {
         try {
             System.out.println("Łączenie z serwerem w celu pobrania statystyk dla: " + playerName + "...");
-            java.net.Socket s = new java.net.Socket("127.0.0.1", 1234);
+            java.net.Socket s = new java.net.Socket(SERVER_IP, 1234);
             java.io.ObjectOutputStream out = new java.io.ObjectOutputStream(s.getOutputStream());
             java.io.ObjectInputStream in = new java.io.ObjectInputStream(s.getInputStream());
 
@@ -261,7 +264,7 @@ public class Game extends Application {
                     resetLevel();
                 }
             }
-            
+
             // Goomba Spawner dla mapy multiplayer
             if (menuIndex == 1) {
                 spawnerTickCount++;
@@ -269,12 +272,13 @@ public class Game extends Application {
                     spawnerTickCount = 0;
                     // Losowy czas 3-8 sekund (180 - 480 klatek przy 60 FPS)
                     nextSpawnTime = randomSpawner.nextInt(300) + 180;
-                    
+
                     int pipeSide = randomSpawner.nextInt(2); // 0 = lewa rura, 1 = prawa rura
                     int spawnX = (pipeSide == 0) ? (3 * 64) : (26 * 64);
                     int spawnY = 2 * 64; // Wysokość rury
-                    
-                    handler.addEntity(new com.mario.entity.mob.Goomba(spawnX, spawnY, 64, 64, true, Id.goomba, handler));
+
+                    handler.addEntity(
+                            new com.mario.entity.mob.Goomba(spawnX, spawnY, 64, 64, true, Id.goomba, handler));
                 }
             }
 
@@ -289,7 +293,8 @@ public class Game extends Application {
                     int scaleState = localPlayer.state == com.mario.states.PlayerState.BIG ? 1 : 0;
 
                     com.mario.net.GameData data = new com.mario.net.GameData(
-                            playerName, p.getX(), p.getY(), p.jumping, p.falling, scaleState, localPlayer.facingRight ? 1 : 0);
+                            playerName, p.getX(), p.getY(), p.jumping, p.falling, scaleState,
+                            localPlayer.facingRight ? 1 : 0);
 
                     // Wyrzucenie fizyki przez lejek OOS TCP
                     gameClient.sendPacket(com.mario.net.Packet.update(lobbyCode, data));
@@ -363,7 +368,7 @@ public class Game extends Application {
                 double scaleX = canvas.getWidth() / (double) levelWidthPixels;
                 double scaleY = canvas.getHeight() / (double) levelHeightPixels;
                 double fitScale = Math.min(scaleX, scaleY);
-                
+
                 double offsetX = (canvas.getWidth() - (levelWidthPixels * fitScale)) / 2.0;
                 double offsetY = (canvas.getHeight() - (levelHeightPixels * fitScale)) / 2.0;
 
@@ -381,7 +386,8 @@ public class Game extends Application {
                 gc.setGlobalAlpha(0.6);
 
                 for (com.mario.net.GameData targetGhost : gameClient.ghosts.values()) {
-                    if (targetGhost.state == 2) continue; // Nie rysuj martwego gracza
+                    if (targetGhost.state == 2)
+                        continue; // Nie rysuj martwego gracza
 
                     String id = targetGhost.playerId;
 
@@ -497,7 +503,7 @@ public class Game extends Application {
         try {
             // Zapis danych do bazy na Serwerze
             try {
-                java.net.Socket s = new java.net.Socket("127.0.0.1", 1234);
+                java.net.Socket s = new java.net.Socket(SERVER_IP, 1234);
                 java.io.ObjectOutputStream out = new java.io.ObjectOutputStream(s.getOutputStream());
 
                 String payload = coins + ";" + goombasDefeated + ";3;Level1";
@@ -534,6 +540,9 @@ public class Game extends Application {
      * The entry point of the application.
      */
     public static void main(String[] args) {
+        if (args.length > 0) {
+            SERVER_IP = args[0];
+        }
         launch(args);
     }
 }

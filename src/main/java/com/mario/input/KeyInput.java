@@ -74,11 +74,16 @@ public class KeyInput {
         username.setPromptText("Login");
         javafx.scene.control.PasswordField password = new javafx.scene.control.PasswordField();
         password.setPromptText("Hasło");
+        javafx.scene.control.TextField serverAddress = new javafx.scene.control.TextField();
+        serverAddress.setText(Game.SERVER_IP);
+        serverAddress.setPromptText("IP Serwera");
 
         grid.add(new javafx.scene.control.Label("Login:"), 0, 0);
         grid.add(username, 1, 0);
         grid.add(new javafx.scene.control.Label("Hasło:"), 0, 1);
         grid.add(password, 1, 1);
+        grid.add(new javafx.scene.control.Label("Adres IP:"), 0, 2);
+        grid.add(serverAddress, 1, 2);
 
         dialog.getDialogPane().setContent(grid);
         
@@ -99,6 +104,10 @@ public class KeyInput {
         });
 
         dialog.setResultConverter(dialogButton -> {
+            String ip = serverAddress.getText().trim();
+            if (!ip.isEmpty()) {
+                Game.SERVER_IP = ip;
+            }
             if (dialogButton == loginButtonType) {
                 return new javafx.util.Pair<>("LOGIN:" + username.getText(), password.getText());
             } else if (dialogButton == registerButtonType) {
