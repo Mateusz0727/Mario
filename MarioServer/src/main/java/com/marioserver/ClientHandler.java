@@ -148,6 +148,11 @@ public class ClientHandler extends Thread {
                             System.out.println("Nieudana próba rejestracji (zajęte): " + packet.roomCode);
                         }
                     }
+                    else if (packet.type == Packet.Type.PING) {
+                        try {
+                            sendObject(Packet.pong(Long.parseLong(packet.message)));
+                        } catch (Exception e) {}
+                    }
                 }
             }
         } catch (java.io.EOFException e) {

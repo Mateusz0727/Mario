@@ -30,7 +30,9 @@ public class Packet implements Serializable {
         SPAWN_MUSHROOM,
         SERVER_MUSHROOM_SPAWN,
         SERVER_MUSHROOM_UPDATE,
-        SERVER_MUSHROOM_DIE
+        SERVER_MUSHROOM_DIE,
+        PING,
+        PONG
     }
 
     public Type type;
@@ -237,6 +239,20 @@ public class Packet implements Serializable {
         p.type = Type.SERVER_MUSHROOM_DIE;
         p.roomCode = roomCode;
         p.entityId = id;
+        return p;
+    }
+
+    public static Packet ping(long timestamp) {
+        Packet p = new Packet();
+        p.type = Type.PING;
+        p.message = String.valueOf(timestamp);
+        return p;
+    }
+
+    public static Packet pong(long timestamp) {
+        Packet p = new Packet();
+        p.type = Type.PONG;
+        p.message = String.valueOf(timestamp);
         return p;
     }
 }

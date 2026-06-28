@@ -157,6 +157,12 @@ public class GameClient extends Thread {
                             }
                         });
                     }
+                    else if (packet.type == Packet.Type.PONG) {
+                        try {
+                            long sentTime = Long.parseLong(packet.message);
+                            Game.ping = (int) (System.currentTimeMillis() - sentTime);
+                        } catch (Exception e) {}
+                    }
                 }
             }
         } catch (Exception e) {

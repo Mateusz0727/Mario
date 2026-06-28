@@ -253,7 +253,7 @@ public class Player extends Entity {
                 if (goombaEntity.dying) {
                     continue;
                 }
-                if (falling && getBounds().intersects(goombaEntity.getBounds()) && getY() + height / 2 < goombaEntity.getY() + goombaEntity.height / 2) {
+                if (falling && getBoundsBottom().intersects(goombaEntity.getBoundsTop())) {
                     Game.goombasDefeated++;
                     if (Game.gameClient != null && Game.gameClient.connected) {
                         if (goombaEntity.netId != -1) {

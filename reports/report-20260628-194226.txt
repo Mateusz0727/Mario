@@ -1,0 +1,8 @@
+=== RAPORT Z DZIAŁANIA PROGRAMU ===
+Gracz: jan
+Zebrane monety: 12
+Pokonane Goomby: 18
+Status sieci: Połączono
+Kod pokoju: EVOD
+Czas zakonczenia: 2026-06-28T19:42:26.290178800
+===================================

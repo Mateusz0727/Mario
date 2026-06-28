@@ -1,0 +1,8 @@
+=== RAPORT Z DZIAŁANIA PROGRAMU ===
+Gracz: jan
+Zebrane monety: 12
+Pokonane Goomby: 9
+Status sieci: Połączono
+Kod pokoju: U0GL
+Czas zakonczenia: 2026-06-28T19:26:20.514094700
+===================================

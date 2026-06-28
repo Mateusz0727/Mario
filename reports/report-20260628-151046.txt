@@ -1,0 +1,8 @@
+=== RAPORT Z DZIAŁANIA PROGRAMU ===
+Gracz: jan
+Zebrane monety: 0
+Pokonane Goomby: 0
+Status sieci: Połączono
+Kod pokoju: 5LU4
+Czas zakonczenia: 2026-06-28T15:10:46.957458800
+===================================

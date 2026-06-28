@@ -1,0 +1,8 @@
+=== RAPORT Z DZIAŁANIA PROGRAMU ===
+Gracz: jan
+Zebrane monety: 23
+Pokonane Goomby: 16
+Status sieci: Połączono
+Kod pokoju: SOYZ
+Czas zakonczenia: 2026-06-28T19:54:06.800791900
+===================================
