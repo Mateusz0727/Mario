@@ -227,6 +227,9 @@ public class Player extends Entity {
         }
 
         // --- INTERAKCJE Z ENTITIES (Grzyby, Goomby) ---
+        boolean stompedAny = false;
+
+        // Faza 1: Grzyby i Naskakiwanie na Goomby (Stomps)
         for (int i = 0; i < handler.entity.size(); i++) {
             Entity e = handler.entity.get(i);
 
@@ -250,10 +253,9 @@ public class Player extends Entity {
                 }
             } else if (e.getId() == Id.goomba) {
                 Goomba goombaEntity = (Goomba) e;
-                if (goombaEntity.dying) {
-                    continue;
-                }
-                if (falling && getBoundsBottom().intersects(goombaEntity.getBoundsTop())) {
+                if (goombaEntity.dying) continue;
+
+                if (falling && getBoundsBottom().intersects(goombaEntity.getBoundsTop()) && !getBoundsRight().intersects(goombaEntity.getBoundsLeft()) && !getBoundsLeft().intersects(goombaEntity.getBoundsRight())) {
                     Game.goombasDefeated++;
                     if (Game.gameClient != null && Game.gameClient.connected) {
                         if (goombaEntity.netId != -1) {
@@ -262,38 +264,41 @@ public class Player extends Entity {
                             Game.gameClient.sendPacket(com.mario.net.Packet.entitySync(Game.lobbyCode, goombaEntity.initX, goombaEntity.initY, true));
                         }
                     }
-                    
-                    jumping = true;
-                    falling = false;
-                    gravity = 8.0;
-
+                    stompedAny = true;
                     goombaEntity.die();
-                } else if (getBounds().intersects(e.getBounds())) {
-                    if (state == PlayerState.BIG) {
-                        state = PlayerState.SMALL;
-                        width = 48;
-                        height = 48;
-                        y += 48;
-                        
-                        Game.goombasDefeated++;
-                        if (Game.gameClient != null && Game.gameClient.connected) {
-                            if (goombaEntity.netId != -1) {
-                                Game.gameClient.sendPacket(com.mario.net.Packet.serverGoombaDie(Game.lobbyCode, goombaEntity.netId));
+                }
+            }
+        }
+
+        if (stompedAny) {
+            jumping = true;
+            falling = false;
+            gravity = 8.0;
+        }
+
+        // Faza 2: Obrażenia od Goombów od boku (tylko jeśli w tej klatce nikogo nie nadepnęliśmy)
+        if (!stompedAny) {
+            for (int i = 0; i < handler.entity.size(); i++) {
+                Entity e = handler.entity.get(i);
+                if (e.getId() == Id.goomba) {
+                    Goomba goombaEntity = (Goomba) e;
+                    if (goombaEntity.dying) continue;
+
+                    if (getBounds().intersects(e.getBounds())) {
+                        if (state == PlayerState.BIG) {
+                            state = PlayerState.SMALL;
+                            width = 48;
+                            height = 48;
+                            y += 48;
+                        } else if (state == PlayerState.SMALL) {
+                            die(); // Gracz zostaje usunięty z ekranu w obu trybach
+                            if (Game.gameClient != null && Game.gameClient.connected) {
+                                com.mario.net.GameData data = new com.mario.net.GameData(
+                                        Game.playerName, getX(), getY(), false, false, 2, facingRight ? 1 : 0);
+                                Game.gameClient.sendPacket(com.mario.net.Packet.update(Game.lobbyCode, data));
                             } else {
-                                Game.gameClient.sendPacket(com.mario.net.Packet.entitySync(Game.lobbyCode, goombaEntity.initX, goombaEntity.initY, true));
+                                Game.state = Game.GameState.GAME_OVER;
                             }
-                        }
-                        goombaEntity.die();
-                    } else if (state == PlayerState.SMALL) {
-                        die(); // Gracz zostaje usunięty z ekranu w obu trybach
-                        if (Game.gameClient != null && Game.gameClient.connected) {
-                            // Jesteśmy w trybie Online, zostajemy jako obserwator!
-                            com.mario.net.GameData data = new com.mario.net.GameData(
-                                    Game.playerName, getX(), getY(), false, false, 2, facingRight ? 1 : 0);
-                            Game.gameClient.sendPacket(com.mario.net.Packet.update(Game.lobbyCode, data));
-                        } else {
-                            // Jesteśmy w trybie Single Player, koniec gry
-                            Game.state = Game.GameState.GAME_OVER;
                         }
                     }
                 }
