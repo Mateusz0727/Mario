@@ -61,6 +61,10 @@ public class Game extends Application {
 
     public static int coins = 0;
     public static int goombasDefeated = 0;
+    
+    public static int lastFPS = 0;
+    public static int ping = 0;
+    public static long lastPingSentTime = 0;
 
     // Interpolacja duchów
     private java.util.Map<String, double[]> ghostPositions = new java.util.HashMap<>();
@@ -489,9 +493,21 @@ public class Game extends Application {
 
                 if (System.currentTimeMillis() - timer > 1000) {
                     timer += 1000;
-                    System.out.println("FPS: " + frames + " | Ticks: " + ticks);
+                    Game.lastFPS = frames;
+                    
+                    if (Game.menuIndex == 1 && Game.gameClient != null && Game.gameClient.connected) {
+                        System.out.println("FPS: " + frames + " | Ticks: " + ticks + " | Ping: " + ping + " ms");
+                    } else {
+                        System.out.println("FPS: " + frames + " | Ticks: " + ticks);
+                    }
+                    
                     frames = 0;
                     ticks = 0;
+                    
+                    if (Game.menuIndex == 1 && Game.gameClient != null && Game.gameClient.connected) {
+                        Game.lastPingSentTime = System.currentTimeMillis();
+                        Game.gameClient.sendPacket(com.mario.net.Packet.ping(Game.lastPingSentTime));
+                    }
                 }
             }
         }.start();

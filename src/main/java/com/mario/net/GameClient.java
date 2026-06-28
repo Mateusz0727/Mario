@@ -92,6 +92,12 @@ public class GameClient extends Thread {
                             Game.handler.updateEntityState(packet.tx, packet.ty, packet.tileRemoved);
                         });
                     }
+                    else if (packet.type == Packet.Type.PONG) {
+                        try {
+                            long sentTime = Long.parseLong(packet.message);
+                            Game.ping = (int) (System.currentTimeMillis() - sentTime);
+                        } catch (Exception e) {}
+                    }
                 }
             }
         } catch (Exception e) {

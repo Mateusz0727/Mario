@@ -23,7 +23,9 @@ public class Packet implements Serializable {
         LOGIN_REQUEST,
         LOGIN_RESPONSE,
         REGISTER_REQUEST,
-        REGISTER_RESPONSE
+        REGISTER_RESPONSE,
+        PING,
+        PONG
     }
 
     public Type type;
@@ -158,6 +160,20 @@ public class Packet implements Serializable {
         p.type = Type.LOAD_DB_RESPONSE;
         p.roomCode = playerId;
         p.message = dbPayload;
+        return p;
+    }
+
+    public static Packet ping(long timestamp) {
+        Packet p = new Packet();
+        p.type = Type.PING;
+        p.message = String.valueOf(timestamp);
+        return p;
+    }
+
+    public static Packet pong(long timestamp) {
+        Packet p = new Packet();
+        p.type = Type.PONG;
+        p.message = String.valueOf(timestamp);
         return p;
     }
 }
