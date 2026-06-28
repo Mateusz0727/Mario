@@ -1,0 +1,8 @@
+=== RAPORT Z DZIAŁANIA PROGRAMU ===
+Gracz: jan
+Zebrane monety: 3
+Pokonane Goomby: 6
+Status sieci: Połączono
+Kod pokoju: EBAV
+Czas zakonczenia: 2026-06-28T22:29:34.940806800
+===================================

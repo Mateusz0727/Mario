@@ -1,0 +1,8 @@
+=== RAPORT Z DZIAŁANIA PROGRAMU ===
+Gracz: jan
+Zebrane monety: 3
+Pokonane Goomby: 3
+Status sieci: Połączono
+Kod pokoju: 09LM
+Czas zakonczenia: 2026-06-28T23:58:16.093399100
+===================================

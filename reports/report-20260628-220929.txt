@@ -1,0 +1,8 @@
+=== RAPORT Z DZIAŁANIA PROGRAMU ===
+Gracz: jan
+Zebrane monety: 1
+Pokonane Goomby: 1
+Status sieci: Połączono
+Kod pokoju: R683
+Czas zakonczenia: 2026-06-28T22:09:29.879270800
+===================================

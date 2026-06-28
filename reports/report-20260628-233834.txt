@@ -1,0 +1,8 @@
+=== RAPORT Z DZIAŁANIA PROGRAMU ===
+Gracz: jan
+Zebrane monety: 0
+Pokonane Goomby: 0
+Status sieci: Połączono
+Kod pokoju: PK7L
+Czas zakonczenia: 2026-06-28T23:38:34.377494900
+===================================

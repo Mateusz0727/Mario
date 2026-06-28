@@ -1,0 +1,8 @@
+=== RAPORT Z DZIAŁANIA PROGRAMU ===
+Gracz: jan
+Zebrane monety: 6
+Pokonane Goomby: 7
+Status sieci: Połączono
+Kod pokoju: EPXT
+Czas zakonczenia: 2026-06-28T23:34:06.110651100
+===================================
