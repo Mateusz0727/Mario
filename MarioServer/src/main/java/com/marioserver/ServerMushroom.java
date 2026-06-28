@@ -24,7 +24,11 @@ public class ServerMushroom {
         new Platform(4*64, 26*64, 6*64),   // Środkowa długa
         new Platform(0, 10*64, 9*64),      // Dolne lewe
         new Platform(20*64, 30*64, 9*64),  // Dolne prawe
-        new Platform(0, 30*64, 12*64)      // Podłoga (Y = 768)
+        new Platform(0, 30*64, 12*64),     // Podłoga (Y = 768)
+        new Platform(14*64, 15*64, 0*64),  // Blok w rzędzie 0
+        new Platform(15*64, 16*64, 5*64),  // Blok w rzędzie 5
+        new Platform(14*64, 16*64, 9*64),  // Bloki w rzędzie 9
+        new Platform(15*64, 16*64, 11*64)  // Blok w rzędzie 11
     };
 
     public ServerMushroom(int id, double startX, double startY) {

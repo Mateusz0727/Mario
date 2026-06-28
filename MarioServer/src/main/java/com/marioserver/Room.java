@@ -145,6 +145,13 @@ public class Room implements Runnable {
     }
 
     public void spawnMushroom(double x, double y) {
+        // Zabezpieczenie przed podwójnym generowaniem (np. gdy obaj gracze uderzą w ten sam blok)
+        for (ServerMushroom existing : mushrooms) {
+            if (Math.abs(existing.x - x) < 32 && Math.abs(existing.y - y) < 128) {
+                return; 
+            }
+        }
+        
         int newId = entityIdCounter++;
         ServerMushroom m = new ServerMushroom(newId, x, y);
         mushrooms.add(m);
