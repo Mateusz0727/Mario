@@ -92,6 +92,40 @@ public class GameClient extends Thread {
                             Game.handler.updateEntityState(packet.tx, packet.ty, packet.tileRemoved);
                         });
                     }
+                    else if (packet.type == Packet.Type.SERVER_GOOMBA_SPAWN) {
+                        Platform.runLater(() -> {
+                            com.mario.entity.mob.Goomba g = new com.mario.entity.mob.Goomba(packet.gx, packet.gy, 64, 64, true, com.mario.Id.goomba, Game.handler);
+                            g.netId = packet.entityId;
+                            g.serverX = packet.gx;
+                            g.serverY = packet.gy;
+                            Game.handler.addEntity(g);
+                        });
+                    }
+                    else if (packet.type == Packet.Type.SERVER_GOOMBA_UPDATE) {
+                        Platform.runLater(() -> {
+                            for (int i = 0; i < Game.handler.entity.size(); i++) {
+                                com.mario.entity.Entity e = Game.handler.entity.get(i);
+                                if (e.getId() == com.mario.Id.goomba && e.netId == packet.entityId) {
+                                    com.mario.entity.mob.Goomba g = (com.mario.entity.mob.Goomba) e;
+                                    g.serverX = packet.gx;
+                                    g.serverY = packet.gy;
+                                    if (packet.gDying && !g.dying) {
+                                        g.die();
+                                    }
+                                }
+                            }
+                        });
+                    }
+                    else if (packet.type == Packet.Type.SERVER_GOOMBA_DIE) {
+                        Platform.runLater(() -> {
+                            for (int i = 0; i < Game.handler.entity.size(); i++) {
+                                com.mario.entity.Entity e = Game.handler.entity.get(i);
+                                if (e.getId() == com.mario.Id.goomba && e.netId == packet.entityId) {
+                                    e.die();
+                                }
+                            }
+                        });
+                    }
                 }
             }
         } catch (Exception e) {

@@ -249,7 +249,11 @@ public class Player extends Entity {
                 if (falling && getBounds().intersects(goombaEntity.getBounds()) && getY() + height / 2 < goombaEntity.getY() + goombaEntity.height / 2) {
                     Game.goombasDefeated++;
                     if (Game.gameClient != null && Game.gameClient.connected) {
-                        Game.gameClient.sendPacket(com.mario.net.Packet.entitySync(Game.lobbyCode, goombaEntity.initX, goombaEntity.initY, true));
+                        if (goombaEntity.netId != -1) {
+                            Game.gameClient.sendPacket(com.mario.net.Packet.serverGoombaDie(Game.lobbyCode, goombaEntity.netId));
+                        } else {
+                            Game.gameClient.sendPacket(com.mario.net.Packet.entitySync(Game.lobbyCode, goombaEntity.initX, goombaEntity.initY, true));
+                        }
                     }
                     
                     jumping = true;
@@ -266,7 +270,11 @@ public class Player extends Entity {
                         
                         Game.goombasDefeated++;
                         if (Game.gameClient != null && Game.gameClient.connected) {
-                            Game.gameClient.sendPacket(com.mario.net.Packet.entitySync(Game.lobbyCode, goombaEntity.initX, goombaEntity.initY, true));
+                            if (goombaEntity.netId != -1) {
+                                Game.gameClient.sendPacket(com.mario.net.Packet.serverGoombaDie(Game.lobbyCode, goombaEntity.netId));
+                            } else {
+                                Game.gameClient.sendPacket(com.mario.net.Packet.entitySync(Game.lobbyCode, goombaEntity.initX, goombaEntity.initY, true));
+                            }
                         }
                         goombaEntity.die();
                     } else if (state == PlayerState.SMALL) {

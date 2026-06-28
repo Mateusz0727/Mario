@@ -23,7 +23,10 @@ public class Packet implements Serializable {
         LOGIN_REQUEST,
         LOGIN_RESPONSE,
         REGISTER_REQUEST,
-        REGISTER_RESPONSE
+        REGISTER_RESPONSE,
+        SERVER_GOOMBA_SPAWN,
+        SERVER_GOOMBA_UPDATE,
+        SERVER_GOOMBA_DIE
     }
 
     public Type type;
@@ -35,6 +38,11 @@ public class Packet implements Serializable {
     public int tx, ty;
     public boolean tileRemoved;
     public boolean tileActivated;
+
+    // Fields for Server Goombas
+    public int entityId;
+    public double gx, gy;
+    public boolean gDying;
 
     // Konstruktor do tworzenia pokojów
     public static Packet createRoom() {
@@ -158,6 +166,35 @@ public class Packet implements Serializable {
         p.type = Type.LOAD_DB_RESPONSE;
         p.roomCode = playerId;
         p.message = dbPayload;
+        return p;
+    }
+
+    public static Packet serverGoombaSpawn(String roomCode, int id, double x, double y) {
+        Packet p = new Packet();
+        p.type = Type.SERVER_GOOMBA_SPAWN;
+        p.roomCode = roomCode;
+        p.entityId = id;
+        p.gx = x;
+        p.gy = y;
+        return p;
+    }
+
+    public static Packet serverGoombaUpdate(String roomCode, int id, double x, double y, boolean dying) {
+        Packet p = new Packet();
+        p.type = Type.SERVER_GOOMBA_UPDATE;
+        p.roomCode = roomCode;
+        p.entityId = id;
+        p.gx = x;
+        p.gy = y;
+        p.gDying = dying;
+        return p;
+    }
+    
+    public static Packet serverGoombaDie(String roomCode, int id) {
+        Packet p = new Packet();
+        p.type = Type.SERVER_GOOMBA_DIE;
+        p.roomCode = roomCode;
+        p.entityId = id;
         return p;
     }
 }

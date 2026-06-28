@@ -68,6 +68,7 @@ public class ClientHandler extends Thread {
                                 // Gdy wejdzie dwóch, uruchom gre po obu stronach
                                 currentRoom.isGameStarted = true;
                                 currentRoom.broadcast(Packet.start(code));
+                                currentRoom.startGameLoop();
                             }
                         } else {
                             sendObject(Packet.error("Room not found!"));
@@ -101,6 +102,11 @@ public class ClientHandler extends Thread {
                     else if (packet.type == Packet.Type.SAVE_DB) {
                         ServerDatabase.saveData(packet.roomCode, packet.message);
                         System.out.println("Zapisano do bazy wynik gracza: " + packet.roomCode);
+                    }
+                    else if (packet.type == Packet.Type.SERVER_GOOMBA_DIE) {
+                        if (currentRoom != null && currentRoom.isGameStarted) {
+                            currentRoom.killGoomba(packet.entityId);
+                        }
                     }
                     else if (packet.type == Packet.Type.LOAD_DB) {
                         String payload = ServerDatabase.loadData(packet.roomCode);

@@ -265,22 +265,7 @@ public class Game extends Application {
                 }
             }
 
-            // Goomba Spawner dla mapy multiplayer
-            if (menuIndex == 1) {
-                spawnerTickCount++;
-                if (spawnerTickCount >= nextSpawnTime) {
-                    spawnerTickCount = 0;
-                    // Losowy czas 3-8 sekund (180 - 480 klatek przy 60 FPS)
-                    nextSpawnTime = randomSpawner.nextInt(300) + 180;
-
-                    int pipeSide = randomSpawner.nextInt(2); // 0 = lewa rura, 1 = prawa rura
-                    int spawnX = (pipeSide == 0) ? (3 * 64) : (26 * 64);
-                    int spawnY = 2 * 64; // Wysokość rury
-
-                    handler.addEntity(
-                            new com.mario.entity.mob.Goomba(spawnX, spawnY, 64, 64, true, Id.goomba, handler));
-                }
-            }
+            // Goomba Spawner dla mapy multiplayer usunięty - teraz zarządza tym serwer autorytatywny
 
             // Update camera position to follow player
             com.mario.entity.Entity p = handler.findPlayer();

@@ -16,6 +16,7 @@ public class Goomba extends Entity {
     private final Image icon;
     private Random random = new Random();
     public boolean dying = false;
+    public double serverX, serverY;
 
     public Goomba(double x, double y, int width, int height, boolean solid, Id id, Handler handler) {
         super(x, y, width, height, solid, id, handler);
@@ -63,6 +64,23 @@ public class Goomba extends Entity {
     }
 
     public void tick() {
+        if (Game.menuIndex == 1 && netId != -1) {
+            // Zwiększony współczynnik LERP z 0.15 na 0.5, aby zapobiec 
+            // nienaturalnemu zwalnianiu tuż przed ziemią.
+            x += (serverX - x) * 0.5;
+            y += (serverY - y) * 0.5;
+            
+            // Jeśli jest bardzo blisko celu, przyciągnij go na sztywno, 
+            // by uniknąć asympotycznego zwalniania przy podłożu.
+            if (Math.abs(serverX - x) < 1.0) x = serverX;
+            if (Math.abs(serverY - y) < 1.0) y = serverY;
+            
+            if (dying && y > Game.levelHeightPixels + 100) {
+                handler.removeEntity(this);
+            }
+            return; // Skip local physics!
+        }
+
         if (dying) {
             setVelY(velY + 0.5); // Apply simple gravity
             x += velX;
