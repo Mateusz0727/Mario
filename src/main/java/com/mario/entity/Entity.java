@@ -99,6 +99,7 @@ public abstract class Entity {
     }
 
     public void drawHitboxes(javafx.scene.canvas.GraphicsContext gc) {
+        /*
         gc.setLineWidth(2);
         
         // Glowny (zółty)
@@ -125,5 +126,6 @@ public abstract class Entity {
         gc.setStroke(javafx.scene.paint.Color.MAGENTA);
         javafx.geometry.Rectangle2D br = getBoundsRight();
         gc.strokeRect(br.getMinX(), br.getMinY(), br.getWidth(), br.getHeight());
+        */
     }
 }
