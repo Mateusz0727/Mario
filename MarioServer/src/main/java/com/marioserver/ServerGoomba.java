@@ -6,44 +6,44 @@ public class ServerGoomba {
     public double velX, velY;
     public boolean dying = false;
     public boolean dead = false;
-    
+
     public static final double WIDTH = 64;
     public static final double HEIGHT = 64;
-    
-
 
     public ServerGoomba(int id, double startX, double startY) {
         this.id = id;
         this.x = startX;
         this.y = startY;
-        
+
         if (x < 15 * 64) {
             velX = 2;
         } else {
             velX = -2;
         }
     }
-    
+
     public void tick() {
-        if (dead) return;
-        
+        if (dead)
+            return;
+
         if (dying) {
             velY += 0.5; // gravity
             x += velX;
             y += velY;
-            if (y > 15 * 64) {
+            if (y > 30 * 64) {
                 dead = true;
             }
             return;
         }
-        
+
         // Grawitacja i ruch
         velY += 0.5;
-        if (velY > 15) velY = 15;
-        
+        if (velY > 15)
+            velY = 15;
+
         double nextY = y + velY;
         boolean onGround = false;
-        
+
         // Kolizja z platformami z góry (opadanie)
         if (velY > 0) {
             for (ServerPlatform p : Server.platforms) {
@@ -61,7 +61,7 @@ public class ServerGoomba {
         }
         y = nextY;
         x += velX;
-        
+
         // Odbijanie od granic ekranu
         if (x <= 0) {
             x = 0;
@@ -71,13 +71,13 @@ public class ServerGoomba {
             x = 30 * 64 - WIDTH;
             velX = -velX;
         }
-        
+
         // Jeśli Goomba wypadnie za mapę
-        if (y >= 13 * 64) {
+        if (y >= 30 * 64) {
             dead = true;
         }
     }
-    
+
     public void die() {
         if (!dying) {
             dying = true;

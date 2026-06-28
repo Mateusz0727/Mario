@@ -31,7 +31,7 @@ public class ServerMushroom {
             velY += 0.5; // gravity
             x += velX;
             y += velY;
-            if (y > 15 * 64) {
+            if (y > 30 * 64) {
                 dead = true;
             }
             return;
@@ -73,7 +73,7 @@ public class ServerMushroom {
         }
         
         // Jeśli Grzybek wypadnie za mapę
-        if (y >= 13 * 64) {
+        if (y >= 30 * 64) {
             dead = true;
         }
     }
