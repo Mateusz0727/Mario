@@ -1,0 +1,8 @@
+=== RAPORT Z DZIAŁANIA PROGRAMU ===
+Gracz: jan
+Zebrane monety: 1
+Pokonane Goomby: 0
+Status sieci: Połączono
+Kod pokoju: E6DE
+Czas zakonczenia: 2026-06-29T00:08:37.723235200
+===================================

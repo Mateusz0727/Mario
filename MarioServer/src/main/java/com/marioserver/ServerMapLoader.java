@@ -31,7 +31,6 @@ public class ServerMapLoader {
                     
                     if (a == 0) continue;
                     
-                    if (y >= 13) continue; // Skip off-screen platforms at the very bottom (y=13, 14...) so entities can fall off
 
                     if (r == 0 && g == 0 && b == 0) { // Wall
                         platforms.add(new ServerPlatform(x * 64, (x + 1) * 64, y * 64));
