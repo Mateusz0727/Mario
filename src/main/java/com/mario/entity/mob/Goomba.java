@@ -36,6 +36,10 @@ public class Goomba extends Entity {
             setVelX(-2); // Start po prawej -> idź w lewo
         }
     }
+    @Override
+    public javafx.geometry.Rectangle2D getBoundsTop() {
+        return new javafx.geometry.Rectangle2D(getX(), getY() - 0.2, width, 5.2);
+    }
 
     public void render(GraphicsContext gc) {
         if (dying) {
