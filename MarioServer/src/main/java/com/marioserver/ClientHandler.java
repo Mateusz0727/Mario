@@ -17,11 +17,11 @@ public class ClientHandler extends Thread {
     private ObjectOutputStream out;
     public String playerId;
     private Room currentRoom;
-    
+
     public ClientHandler(Socket socket) {
         this.socket = socket;
     }
-    
+
     public synchronized void sendObject(Object obj) {
         try {
             out.reset();
@@ -38,24 +38,24 @@ public class ClientHandler extends Thread {
             // output NAJPIERW zeby uniknac dead-locka handshake javy
             out = new ObjectOutputStream(socket.getOutputStream());
             in = new ObjectInputStream(socket.getInputStream());
-            
+
             while (true) {
-                Object obj = in.readObject(); 
-                
+                Object obj = in.readObject();
+
                 if (obj instanceof Packet) {
                     Packet packet = (Packet) obj;
 
                     if (packet.type == Packet.Type.CREATE_ROOM) {
                         String code = Server.generateRoomCode();
+                        // tworzenie lobby
                         currentRoom = new Room(code);
                         currentRoom.addClient(this);
                         Server.rooms.put(code, currentRoom);
-                        
+
                         Packet response = Packet.joinRoom(code); // Return code to creator
                         sendObject(response);
                         System.out.println("Utworzono Pokój: " + code);
-                    } 
-                    else if (packet.type == Packet.Type.JOIN_ROOM) {
+                    } else if (packet.type == Packet.Type.JOIN_ROOM) {
                         String code = packet.roomCode;
                         if (Server.rooms.containsKey(code)) {
                             currentRoom = Server.rooms.get(code);
@@ -64,7 +64,7 @@ public class ClientHandler extends Thread {
                             } else {
                                 currentRoom.addClient(this);
                                 System.out.println("Klient wszedł do Pokoju: " + code);
-                                
+
                                 // Gdy wejdzie dwóch, uruchom gre po obu stronach
                                 currentRoom.isGameStarted = true;
                                 currentRoom.broadcast(Packet.start(code));
@@ -73,52 +73,44 @@ public class ClientHandler extends Thread {
                         } else {
                             sendObject(Packet.error("Room not found!"));
                         }
-                    }
-                    else if (packet.type == Packet.Type.UPDATE) {
+                    } else if (packet.type == Packet.Type.UPDATE) {
                         if (currentRoom != null && currentRoom.isGameStarted) {
                             this.playerId = packet.data.playerId;
                             List<ClientHandler> others = currentRoom.getOtherClients(this);
-                            for(ClientHandler other : others) {
+                            for (ClientHandler other : others) {
                                 other.sendObject(packet);
                             }
                         }
-                    }
-                    else if (packet.type == Packet.Type.TILE_SYNC) {
+                    } else if (packet.type == Packet.Type.TILE_SYNC) {
                         if (currentRoom != null) {
                             List<ClientHandler> others = currentRoom.getOtherClients(this);
                             for (ClientHandler other : others) {
                                 other.sendObject(packet);
                             }
                         }
-                    }
-                    else if (packet.type == Packet.Type.ENTITY_SYNC) {
+                    } else if (packet.type == Packet.Type.ENTITY_SYNC) {
                         if (currentRoom != null) {
                             List<ClientHandler> others = currentRoom.getOtherClients(this);
                             for (ClientHandler other : others) {
                                 other.sendObject(packet);
                             }
                         }
-                    }
-                    else if (packet.type == Packet.Type.SAVE_DB) {
+                    } else if (packet.type == Packet.Type.SAVE_DB) {
                         ServerDatabase.saveData(packet.roomCode, packet.message);
                         System.out.println("Zapisano do bazy wynik gracza: " + packet.roomCode);
-                    }
-                    else if (packet.type == Packet.Type.SERVER_GOOMBA_DIE) {
+                    } else if (packet.type == Packet.Type.SERVER_GOOMBA_DIE) {
                         if (currentRoom != null && currentRoom.isGameStarted) {
                             currentRoom.killGoomba(packet.entityId);
                         }
-                    }
-                    else if (packet.type == Packet.Type.SPAWN_MUSHROOM) {
+                    } else if (packet.type == Packet.Type.SPAWN_MUSHROOM) {
                         if (currentRoom != null && currentRoom.isGameStarted) {
                             currentRoom.spawnMushroom(packet.gx, packet.gy);
                         }
-                    }
-                    else if (packet.type == Packet.Type.SERVER_MUSHROOM_DIE) {
+                    } else if (packet.type == Packet.Type.SERVER_MUSHROOM_DIE) {
                         if (currentRoom != null && currentRoom.isGameStarted) {
                             currentRoom.killMushroom(packet.entityId);
                         }
-                    }
-                    else if (packet.type == Packet.Type.LOAD_DB) {
+                    } else if (packet.type == Packet.Type.LOAD_DB) {
                         String payload = ServerDatabase.loadData(packet.roomCode);
                         if (payload != null) {
                             sendObject(Packet.loadDbResponse(packet.roomCode, payload));
@@ -127,8 +119,7 @@ public class ClientHandler extends Thread {
                             sendObject(Packet.loadDbResponse(packet.roomCode, "0;0;3;Level1"));
                             System.out.println("Zainicjowano nowe dane dla gracza: " + packet.roomCode);
                         }
-                    }
-                    else if (packet.type == Packet.Type.LOGIN_REQUEST) {
+                    } else if (packet.type == Packet.Type.LOGIN_REQUEST) {
                         boolean ok = ServerDatabase.authenticateUser(packet.roomCode, packet.message);
                         if (ok) {
                             sendObject(Packet.loginResponse(true, "Zalogowano pomyślnie."));
@@ -137,8 +128,7 @@ public class ClientHandler extends Thread {
                             sendObject(Packet.loginResponse(false, "Błędny login lub hasło."));
                             System.out.println("Nieudana próba logowania dla: " + packet.roomCode);
                         }
-                    }
-                    else if (packet.type == Packet.Type.REGISTER_REQUEST) {
+                    } else if (packet.type == Packet.Type.REGISTER_REQUEST) {
                         boolean ok = ServerDatabase.registerUser(packet.roomCode, packet.message);
                         if (ok) {
                             sendObject(Packet.registerResponse(true, "Konto utworzone!"));
@@ -147,11 +137,11 @@ public class ClientHandler extends Thread {
                             sendObject(Packet.registerResponse(false, "Login jest już zajęty."));
                             System.out.println("Nieudana próba rejestracji (zajęte): " + packet.roomCode);
                         }
-                    }
-                    else if (packet.type == Packet.Type.PING) {
+                    } else if (packet.type == Packet.Type.PING) {
                         try {
                             sendObject(Packet.pong(Long.parseLong(packet.message)));
-                        } catch (Exception e) {}
+                        } catch (Exception e) {
+                        }
                     }
                 }
             }
@@ -168,7 +158,10 @@ public class ClientHandler extends Thread {
                     System.out.println("Zniszczono pusty pokój: " + currentRoom.roomCode);
                 }
             }
-            try { socket.close(); } catch (Exception ignored) {}
+            try {
+                socket.close();
+            } catch (Exception ignored) {
+            }
         }
     }
 }
