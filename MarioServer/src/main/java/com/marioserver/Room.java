@@ -118,6 +118,7 @@ public class Room implements Runnable {
             broadcast(Packet.serverGoombaUpdate(roomCode, g.id, g.x, g.y, g.dying));
             
             if (g.dead) {
+                broadcast(Packet.serverGoombaDie(roomCode, g.id));
                 goombas.remove(g);
             }
         }
@@ -129,6 +130,7 @@ public class Room implements Runnable {
             broadcast(Packet.serverMushroomUpdate(roomCode, m.id, m.x, m.y, m.dying));
             
             if (m.dead) {
+                broadcast(Packet.serverMushroomDie(roomCode, m.id));
                 mushrooms.remove(m);
             }
         }

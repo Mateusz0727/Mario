@@ -15,9 +15,12 @@ public class Server {
     
     // Hash map for distinct game room lobbies mapped to a 4 char String code (e.g "X7B1")
     public static ConcurrentHashMap<String, Room> rooms = new ConcurrentHashMap<>();
+    public static java.util.List<ServerPlatform> platforms;
     
     public static void main(String[] args) {
         System.out.println("Uruchamianie Mario Multiplayer Server (Port: " + PORT + ") ...");
+        platforms = ServerMapLoader.loadPlatforms("/levelmulti.png");
+        
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             System.out.println("Serwer rozpoczął nasłuchiwanie. Oczekiwanie na graczy...");
             while (true) {

@@ -10,26 +10,7 @@ public class ServerGoomba {
     public static final double WIDTH = 64;
     public static final double HEIGHT = 64;
     
-    static class Platform {
-        double x1, x2, y;
-        public Platform(double x1, double x2, double y) {
-            this.x1 = x1; this.x2 = x2; this.y = y;
-        }
-    }
-    
-    // Zbliżony układ mapy "levelmulti.png" (Map size: 30x13)
-    static Platform[] platforms = new Platform[] {
-        new Platform(0, 7*64, 3*64),       // Górne lewe
-        new Platform(23*64, 30*64, 3*64),  // Górne prawe
-        new Platform(4*64, 26*64, 6*64),   // Środkowa długa
-        new Platform(0, 10*64, 9*64),      // Dolne lewe
-        new Platform(20*64, 30*64, 9*64),  // Dolne prawe
-        new Platform(0, 30*64, 12*64),     // Podłoga (Y = 768)
-        new Platform(14*64, 15*64, 0*64),  // Blok w rzędzie 0
-        new Platform(15*64, 16*64, 5*64),  // Blok w rzędzie 5
-        new Platform(14*64, 16*64, 9*64),  // Bloki w rzędzie 9
-        new Platform(15*64, 16*64, 11*64)  // Blok w rzędzie 11
-    };
+
 
     public ServerGoomba(int id, double startX, double startY) {
         this.id = id;
@@ -65,7 +46,7 @@ public class ServerGoomba {
         
         // Kolizja z platformami z góry (opadanie)
         if (velY > 0) {
-            for (Platform p : platforms) {
+            for (ServerPlatform p : Server.platforms) {
                 // Sprawdź czy Goomba jest w osi X nad platformą
                 if (x + WIDTH > p.x1 && x < p.x2) {
                     // Sprawdź czy przecięła linię platformy
