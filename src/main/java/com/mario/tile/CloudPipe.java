@@ -19,7 +19,7 @@ public class CloudPipe extends Tile {
     public void render(GraphicsContext gc) {
         int drawY = (int) y;
         if (facing == 2) {
-            drawY -= 64; // Przesunięcie o 1 płytkę w górę
+            drawY -= 96; // Przesunięcie o 1 płytkę (64) + 32 pixele w górę
             
             gc.save();
             gc.translate(x + width / 2.0, drawY + height / 2.0);
@@ -46,7 +46,7 @@ public class CloudPipe extends Tile {
     @Override
     public Rectangle2D getBounds() {
         if (facing == 2) {
-            return new Rectangle2D(x, y - 64, width, height);
+            return new Rectangle2D(x, y - 96, width, height);
         }
         return super.getBounds();
     }
