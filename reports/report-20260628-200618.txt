@@ -1,0 +1,8 @@
+=== RAPORT Z DZIAŁANIA PROGRAMU ===
+Gracz: mario
+Zebrane monety: 19
+Pokonane Goomby: 26
+Status sieci: Połączono
+Kod pokoju: Oczekiwanie...
+Czas zakonczenia: 2026-06-28T20:06:18.392693500
+===================================

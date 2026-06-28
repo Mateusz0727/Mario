@@ -1,0 +1,8 @@
+=== RAPORT Z DZIAŁANIA PROGRAMU ===
+Gracz: Player1
+Zebrane monety: 0
+Pokonane Goomby: 0
+Status sieci: Połączono
+Kod pokoju: SG8D
+Czas zakonczenia: 2026-06-09T17:50:42.683239300
+===================================

@@ -1,0 +1,8 @@
+=== RAPORT Z DZIAŁANIA PROGRAMU ===
+Gracz: Mariusz
+Zebrane monety: 2
+Pokonane Goomby: 2
+Status sieci: Połączono
+Kod pokoju: E4KY
+Czas zakonczenia: 2026-06-18T03:39:34.003955600
+===================================

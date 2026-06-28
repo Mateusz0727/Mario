@@ -1,0 +1,8 @@
+=== RAPORT Z DZIAŁANIA PROGRAMU ===
+Gracz: maro
+Zebrane monety: 11
+Pokonane Goomby: 11
+Status sieci: Połączono
+Kod pokoju: Oczekiwanie...
+Czas zakonczenia: 2026-06-09T19:27:57.433574700
+===================================

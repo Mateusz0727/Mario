@@ -1,0 +1,8 @@
+=== RAPORT Z DZIAŁANIA PROGRAMU ===
+Gracz: Player1
+Zebrane monety: 0
+Pokonane Goomby: 1
+Status sieci: Połączono
+Kod pokoju: PDEK
+Czas zakonczenia: 2026-06-09T18:04:20.628087700
+===================================

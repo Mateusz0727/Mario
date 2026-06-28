@@ -1,0 +1,8 @@
+=== RAPORT Z DZIAŁANIA PROGRAMU ===
+Gracz: a
+Zebrane monety: 22
+Pokonane Goomby: 20
+Status sieci: Połączono
+Kod pokoju: AQ7S
+Czas zakonczenia: 2026-06-28T18:04:20.326279500
+===================================

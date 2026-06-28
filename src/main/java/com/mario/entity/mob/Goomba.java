@@ -51,6 +51,7 @@ public class Goomba extends Entity {
                 gc.drawImage(Game.goomba.getImage(), x, y, width, height);
             }
         }
+        drawHitboxes(gc);
     }
 
     @Override

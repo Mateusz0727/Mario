@@ -1,0 +1,8 @@
+=== RAPORT Z DZIAŁANIA PROGRAMU ===
+Gracz: Player1
+Zebrane monety: 3
+Pokonane Goomby: 2
+Status sieci: Połączono
+Kod pokoju: MY3U
+Czas zakonczenia: 2026-06-09T18:05:20.583914400
+===================================

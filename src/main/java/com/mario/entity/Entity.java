@@ -97,4 +97,33 @@ public abstract class Entity {
     public Rectangle2D getBoundsRight() {
         return new Rectangle2D(getX() + width - 5, getY() + 10, 5.2, height - 20);
     }
+
+    public void drawHitboxes(javafx.scene.canvas.GraphicsContext gc) {
+        gc.setLineWidth(2);
+        
+        // Glowny (zółty)
+        gc.setStroke(javafx.scene.paint.Color.YELLOW);
+        javafx.geometry.Rectangle2D b = getBounds();
+        gc.strokeRect(b.getMinX(), b.getMinY(), b.getWidth(), b.getHeight());
+        
+        // Gora (czerwony)
+        gc.setStroke(javafx.scene.paint.Color.RED);
+        javafx.geometry.Rectangle2D bt = getBoundsTop();
+        gc.strokeRect(bt.getMinX(), bt.getMinY(), bt.getWidth(), bt.getHeight());
+        
+        // Dol (zielony)
+        gc.setStroke(javafx.scene.paint.Color.GREEN);
+        javafx.geometry.Rectangle2D bb = getBoundsBottom();
+        gc.strokeRect(bb.getMinX(), bb.getMinY(), bb.getWidth(), bb.getHeight());
+        
+        // Lewy (niebieski)
+        gc.setStroke(javafx.scene.paint.Color.BLUE);
+        javafx.geometry.Rectangle2D bl = getBoundsLeft();
+        gc.strokeRect(bl.getMinX(), bl.getMinY(), bl.getWidth(), bl.getHeight());
+        
+        // Prawy (magenta)
+        gc.setStroke(javafx.scene.paint.Color.MAGENTA);
+        javafx.geometry.Rectangle2D br = getBoundsRight();
+        gc.strokeRect(br.getMinX(), br.getMinY(), br.getWidth(), br.getHeight());
+    }
 }

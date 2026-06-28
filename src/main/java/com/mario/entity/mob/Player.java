@@ -81,6 +81,10 @@ public class Player extends Entity {
         super(x, y, 48, 48, solid, id, handler);
         state = PlayerState.SMALL;
     }
+    @Override
+    public javafx.geometry.Rectangle2D getBoundsBottom() {
+        return new javafx.geometry.Rectangle2D(getX(), getY() + height - 5, width, 5.2);
+    }
 
     public void render(GraphicsContext gc) {
         initSprites();
@@ -113,6 +117,8 @@ public class Player extends Entity {
         } else {
             gc.drawImage(Game.player.getImage(), x, y, width, height);
         }
+        
+        drawHitboxes(gc);
     }
 
 
