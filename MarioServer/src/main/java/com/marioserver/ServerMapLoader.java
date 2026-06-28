@@ -31,6 +31,8 @@ public class ServerMapLoader {
                     
                     if (a == 0) continue;
                     
+                    if (y >= 13) continue; // Skip off-screen platforms at the very bottom (y=13, 14...) so entities can fall off
+
                     if (r == 0 && g == 0 && b == 0) { // Wall
                         platforms.add(new ServerPlatform(x * 64, (x + 1) * 64, y * 64));
                     } else if (r == 255 && g == 255 && b == 0) { // PowerUpBlock
@@ -45,6 +47,11 @@ public class ServerMapLoader {
                 }
             }
             System.out.println("Loaded " + platforms.size() + " platforms from " + resourcePath);
+            for (ServerPlatform p : platforms) {
+                if (p.y >= 11 * 64) {
+                    System.out.println("Platform at y=" + p.y + " from x1=" + p.x1 + " to x2=" + p.x2);
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

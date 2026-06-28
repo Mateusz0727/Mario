@@ -72,8 +72,8 @@ public class ServerMushroom {
             velX = -velX;
         }
         
-        // Jeśli Goomba wypadnie za mapę
-        if (y > 16 * 64) {
+        // Jeśli Grzybek wypadnie za mapę
+        if (y >= 13 * 64) {
             dead = true;
         }
     }

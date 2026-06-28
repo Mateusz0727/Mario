@@ -73,7 +73,7 @@ public class ServerGoomba {
         }
         
         // Jeśli Goomba wypadnie za mapę
-        if (y > 16 * 64) {
+        if (y >= 13 * 64) {
             dead = true;
         }
     }
