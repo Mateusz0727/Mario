@@ -1,4 +1,4 @@
 jacek;0;0;3;Level1
 jan;14;12;3;Level1
-mario;28;24;3;Level1
+mario;0;0;3;Level1
 Player1;4;0;3;Level1

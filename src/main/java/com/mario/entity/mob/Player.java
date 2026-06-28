@@ -1,4 +1,4 @@
-package com.mario.entity.mob;
+    package com.mario.entity.mob;
 
 import com.mario.Game;
 import com.mario.Handler;
@@ -290,6 +290,16 @@ public class Player extends Entity {
                             width = 48;
                             height = 48;
                             y += 48;
+                            
+                            Game.goombasDefeated++;
+                            if (Game.gameClient != null && Game.gameClient.connected) {
+                                if (goombaEntity.netId != -1) {
+                                    Game.gameClient.sendPacket(com.mario.net.Packet.serverGoombaDie(Game.lobbyCode, goombaEntity.netId));
+                                } else {
+                                    Game.gameClient.sendPacket(com.mario.net.Packet.entitySync(Game.lobbyCode, goombaEntity.initX, goombaEntity.initY, true));
+                                }
+                            }
+                            goombaEntity.die();
                         } else if (state == PlayerState.SMALL) {
                             die(); // Gracz zostaje usunięty z ekranu w obu trybach
                             if (Game.gameClient != null && Game.gameClient.connected) {

@@ -1,0 +1,8 @@
+=== RAPORT Z DZIAŁANIA PROGRAMU ===
+Gracz: jan
+Zebrane monety: 2
+Pokonane Goomby: 1
+Status sieci: Połączono
+Kod pokoju: R7S3
+Czas zakonczenia: 2026-06-28T21:36:31.188058100
+===================================

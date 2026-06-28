@@ -1,0 +1,8 @@
+=== RAPORT Z DZIAŁANIA PROGRAMU ===
+Gracz: jan
+Zebrane monety: 1
+Pokonane Goomby: 2
+Status sieci: Połączono
+Kod pokoju: XUM5
+Czas zakonczenia: 2026-06-28T21:13:17.278735500
+===================================
