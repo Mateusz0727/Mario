@@ -41,9 +41,15 @@ public class PowerUpBlock extends Tile {
         if (activated && !poppedUp) {
             spriteY--;
             if (spriteY <= y - height) {
-                Mushroom m = new Mushroom(x, spriteY, width, height, true, Id.mushroom, handler);
-                m.initY = (int) y; // Stabilny identyfikator oparty na pozycji bloku
-                handler.addEntity(m);
+                if (Game.menuIndex == 1) { // Multiplayer
+                    if (hitByLocalPlayer) {
+                        Game.gameClient.sendPacket(com.mario.net.Packet.spawnMushroom(Game.lobbyCode, x, spriteY));
+                    }
+                } else {
+                    Mushroom m = new Mushroom(x, spriteY, width, height, true, Id.mushroom, handler);
+                    m.initY = (int) y; // Stabilny identyfikator oparty na pozycji bloku
+                    handler.addEntity(m);
+                }
                 poppedUp = true;
             }
         }

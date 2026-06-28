@@ -37,6 +37,15 @@ public class Mushroom extends Entity {
     }
 
     public void tick() {
+        if (netId != -1) {
+            // Multiplayer LERP
+            if (serverX != -1 && serverY != -1) {
+                x += (serverX - x) * 0.4;
+                y += (serverY - y) * 0.4;
+            }
+            return;
+        }
+
         x += velX;
         y += velY;
 

@@ -126,6 +126,37 @@ public class GameClient extends Thread {
                             }
                         });
                     }
+                    else if (packet.type == Packet.Type.SERVER_MUSHROOM_SPAWN) {
+                        Platform.runLater(() -> {
+                            com.mario.entity.powerup.Mushroom m = new com.mario.entity.powerup.Mushroom(packet.gx, packet.gy, 64, 64, true, com.mario.Id.mushroom, Game.handler);
+                            m.netId = packet.entityId;
+                            m.serverX = packet.gx;
+                            m.serverY = packet.gy;
+                            Game.handler.addEntity(m);
+                        });
+                    }
+                    else if (packet.type == Packet.Type.SERVER_MUSHROOM_UPDATE) {
+                        Platform.runLater(() -> {
+                            for (int i = 0; i < Game.handler.entity.size(); i++) {
+                                com.mario.entity.Entity e = Game.handler.entity.get(i);
+                                if (e.getId() == com.mario.Id.mushroom && e.netId == packet.entityId) {
+                                    com.mario.entity.powerup.Mushroom m = (com.mario.entity.powerup.Mushroom) e;
+                                    m.serverX = packet.gx;
+                                    m.serverY = packet.gy;
+                                }
+                            }
+                        });
+                    }
+                    else if (packet.type == Packet.Type.SERVER_MUSHROOM_DIE) {
+                        Platform.runLater(() -> {
+                            for (int i = 0; i < Game.handler.entity.size(); i++) {
+                                com.mario.entity.Entity e = Game.handler.entity.get(i);
+                                if (e.getId() == com.mario.Id.mushroom && e.netId == packet.entityId) {
+                                    e.die();
+                                }
+                            }
+                        });
+                    }
                 }
             }
         } catch (Exception e) {

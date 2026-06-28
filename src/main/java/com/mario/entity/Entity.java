@@ -21,7 +21,8 @@ public abstract class Entity {
     public Id id;
     
     public int initX, initY; // Sieciowy identyfikator pozycji startowej
-    public int netId = -1; // Unikalny identyfikator z serwera (-1 to lokalny)
+    public int netId = -1; // Unikalny ID dla autorytatywnego serwera
+    public double serverX = -1, serverY = -1; // Aktualna pozycja pobrana z serwera
 
     public Handler handler;
 

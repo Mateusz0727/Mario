@@ -183,9 +183,12 @@ public class Player extends Entity {
                     // Logika uderzenia głową w blok z power-upem
                     if (t.getId() == Id.powerUp) {
                         if (getBoundsTop().intersects(t.getBounds())) {
-                            t.activated = true;
-                            if (Game.gameClient != null && Game.gameClient.connected) {
-                                Game.gameClient.sendPacket(com.mario.net.Packet.tileSync(Game.lobbyCode, (int) t.getX(), (int) t.getY(), false, true));
+                            if (!t.activated) {
+                                t.activated = true;
+                                t.hitByLocalPlayer = true;
+                                if (Game.gameClient != null && Game.gameClient.connected) {
+                                    Game.gameClient.sendPacket(com.mario.net.Packet.tileSync(Game.lobbyCode, (int) t.getX(), (int) t.getY(), false, true));
+                                }
                             }
                         }
                     }
@@ -237,7 +240,11 @@ public class Player extends Entity {
                         state = PlayerState.BIG;
                     }
                     if (Game.gameClient != null && Game.gameClient.connected) {
-                        Game.gameClient.sendPacket(com.mario.net.Packet.entitySync(Game.lobbyCode, e.initX, e.initY, true));
+                        if (e.netId != -1) {
+                            Game.gameClient.sendPacket(com.mario.net.Packet.serverMushroomDie(Game.lobbyCode, e.netId));
+                        } else {
+                            Game.gameClient.sendPacket(com.mario.net.Packet.entitySync(Game.lobbyCode, e.initX, e.initY, true));
+                        }
                     }
                     e.die();
                 }

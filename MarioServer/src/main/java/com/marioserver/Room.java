@@ -16,6 +16,7 @@ public class Room implements Runnable {
     
     // Server logic
     private List<ServerGoomba> goombas;
+    private List<ServerMushroom> mushrooms;
     private int spawnerTickCount = 0;
     private int nextSpawnTime = 180;
     private Random randomSpawner = new Random(1337);
@@ -25,6 +26,7 @@ public class Room implements Runnable {
         this.roomCode = roomCode;
         this.clients = new ArrayList<>();
         this.goombas = new CopyOnWriteArrayList<>();
+        this.mushrooms = new CopyOnWriteArrayList<>();
         this.isGameStarted = false;
     }
 
@@ -119,6 +121,17 @@ public class Room implements Runnable {
                 goombas.remove(g);
             }
         }
+        
+        // Update Mushrooms
+        for (ServerMushroom m : mushrooms) {
+            m.tick();
+            
+            broadcast(Packet.serverMushroomUpdate(roomCode, m.id, m.x, m.y, m.dying));
+            
+            if (m.dead) {
+                mushrooms.remove(m);
+            }
+        }
     }
     
     public void killGoomba(int id) {
@@ -126,6 +139,23 @@ public class Room implements Runnable {
             if (g.id == id && !g.dying) {
                 g.die();
                 broadcast(Packet.serverGoombaDie(roomCode, id));
+                break;
+            }
+        }
+    }
+
+    public void spawnMushroom(double x, double y) {
+        int newId = entityIdCounter++;
+        ServerMushroom m = new ServerMushroom(newId, x, y);
+        mushrooms.add(m);
+        broadcast(Packet.serverMushroomSpawn(roomCode, newId, x, y));
+    }
+
+    public void killMushroom(int id) {
+        for (ServerMushroom m : mushrooms) {
+            if (m.id == id && !m.dying) {
+                m.die();
+                broadcast(Packet.serverMushroomDie(roomCode, id));
                 break;
             }
         }

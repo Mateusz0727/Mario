@@ -26,14 +26,18 @@ public class Packet implements Serializable {
         REGISTER_RESPONSE,
         SERVER_GOOMBA_SPAWN,
         SERVER_GOOMBA_UPDATE,
-        SERVER_GOOMBA_DIE
+        SERVER_GOOMBA_DIE,
+        SPAWN_MUSHROOM,
+        SERVER_MUSHROOM_SPAWN,
+        SERVER_MUSHROOM_UPDATE,
+        SERVER_MUSHROOM_DIE
     }
 
     public Type type;
     public String roomCode;
     public String message;
     public GameData data;
-
+    
     // Fields for tile synchronization
     public int tx, ty;
     public boolean tileRemoved;
@@ -193,6 +197,44 @@ public class Packet implements Serializable {
     public static Packet serverGoombaDie(String roomCode, int id) {
         Packet p = new Packet();
         p.type = Type.SERVER_GOOMBA_DIE;
+        p.roomCode = roomCode;
+        p.entityId = id;
+        return p;
+    }
+
+    public static Packet spawnMushroom(String roomCode, double x, double y) {
+        Packet p = new Packet();
+        p.type = Type.SPAWN_MUSHROOM;
+        p.roomCode = roomCode;
+        p.gx = x;
+        p.gy = y;
+        return p;
+    }
+
+    public static Packet serverMushroomSpawn(String roomCode, int id, double x, double y) {
+        Packet p = new Packet();
+        p.type = Type.SERVER_MUSHROOM_SPAWN;
+        p.roomCode = roomCode;
+        p.entityId = id;
+        p.gx = x;
+        p.gy = y;
+        return p;
+    }
+
+    public static Packet serverMushroomUpdate(String roomCode, int id, double x, double y, boolean dying) {
+        Packet p = new Packet();
+        p.type = Type.SERVER_MUSHROOM_UPDATE;
+        p.roomCode = roomCode;
+        p.entityId = id;
+        p.gx = x;
+        p.gy = y;
+        p.gDying = dying;
+        return p;
+    }
+    
+    public static Packet serverMushroomDie(String roomCode, int id) {
+        Packet p = new Packet();
+        p.type = Type.SERVER_MUSHROOM_DIE;
         p.roomCode = roomCode;
         p.entityId = id;
         return p;

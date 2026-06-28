@@ -108,6 +108,16 @@ public class ClientHandler extends Thread {
                             currentRoom.killGoomba(packet.entityId);
                         }
                     }
+                    else if (packet.type == Packet.Type.SPAWN_MUSHROOM) {
+                        if (currentRoom != null && currentRoom.isGameStarted) {
+                            currentRoom.spawnMushroom(packet.gx, packet.gy);
+                        }
+                    }
+                    else if (packet.type == Packet.Type.SERVER_MUSHROOM_DIE) {
+                        if (currentRoom != null && currentRoom.isGameStarted) {
+                            currentRoom.killMushroom(packet.entityId);
+                        }
+                    }
                     else if (packet.type == Packet.Type.LOAD_DB) {
                         String payload = ServerDatabase.loadData(packet.roomCode);
                         if (payload != null) {

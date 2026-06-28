@@ -15,6 +15,7 @@ public abstract class Tile {
 
     public boolean activated = false;
     public boolean removed = false;
+    public boolean hitByLocalPlayer = false;
     public int facing = 0;
 
     public Id id;
